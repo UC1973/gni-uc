@@ -20,7 +20,10 @@
 ### Supabase
 1. 새 프로젝트를 만들고(리전: Seoul `ap-northeast-2`) SQL을 순서대로 실행합니다.
    - `supabase/migrations/20261121000000_init.sql` — 테이블·권한(RLS)
+   - `supabase/migrations/20261121000100_harden.sql` — 권한 함수 비공개 스키마 이동
+   - `supabase/migrations/20261121000200_grants.sql` — API 역할 권한
    - `supabase/seed.sql` — 11.20. 협의 자료 기준 초기 데이터
+   - 현재 운영 DB: Supabase **5P3S** 조직의 **GNI-UC** 프로젝트 (`qbjevtjeczecysbtridj`, 도쿄) — 위 SQL 모두 적용 완료
 2. **Authentication → URL Configuration**
    - Site URL: 배포 주소 (예: `https://gni-uc.vercel.app`)
    - Redirect URLs: `https://gni-uc.vercel.app/auth/callback`, `http://localhost:3000/auth/callback`
