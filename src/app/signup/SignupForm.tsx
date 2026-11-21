@@ -31,6 +31,7 @@ export function SignupForm({ universities }: { universities: University[] }) {
         <input id="email" name="email" type="email" required autoComplete="email" placeholder={domains[0] ? `name@${domains[0]}` : undefined} />
         {domains.length > 0 && <p className="small muted" style={{ marginTop: 6 }}>{selected?.name} 메일(@{domains.join(", @")})만 가입할 수 있습니다.</p>}</div>
       <div className="fld"><label htmlFor="password">비밀번호 (8자 이상, 영문+숫자)</label><input id="password" name="password" type="password" minLength={8} required autoComplete="new-password" /></div>
+      <label className="consent"><input type="checkbox" name="privacy_agree" required /> <span>[필수] <Link href="/privacy" target="_blank">개인정보 처리방침</Link>(수집 항목·목적·보유기간, 국외 위탁)을 읽고 동의합니다.</span></label>
       <button className="btn btn-p" style={{ width: "100%", justifyContent: "center" }} disabled={pending}>{pending ? "신청 중…" : "가입 신청"}</button>
       <p className="small muted" style={{ marginTop: 14, textAlign: "center" }}>이미 계정이 있나요? <Link href="/login" style={{ color: "var(--blue)", fontWeight: 600 }}>로그인</Link></p>
     </form>

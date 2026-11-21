@@ -277,3 +277,14 @@ footer.pf .partners{display:flex;align-items:center;gap:20px;flex-wrap:wrap;just
 .rf-list li{display:flex;align-items:center;gap:8px;font-size:13px;flex-wrap:wrap}
 .rf-list a{color:var(--blue);font-weight:600;word-break:break-all}
 .rf-del{margin-left:auto;font-size:12px;color:var(--bad);text-decoration:underline}
+
+/* 개인정보 처리방침 */
+.privacy{max-width:860px;padding-top:40px}
+.privacy h1{font-size:28px;margin-bottom:10px}
+.privacy h2{font-size:18px;margin:32px 0 10px}
+.privacy p,.privacy li{font-size:15px;line-height:1.75}
+.privacy ul{padding-left:20px;display:grid;gap:4px}
+.privacy table{margin:10px 0}
+.privacy a{color:var(--blue)}
+.consent{display:flex;gap:8px;align-items:flex-start;font-size:13px;margin:4px 0 14px}
+.consent a{color:var(--blue);text-decoration:underline}

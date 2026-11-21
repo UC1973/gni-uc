@@ -230,7 +230,7 @@ export default async function Home() {
         </div>
         <div className="wrap">
         <div><b>울산과학대학교 5극3특공유대학사업단 (GNI-UC)</b><br />GNI 공유대학 · 주관 경상국립대학교</div>
-        <div><Link href="/login" style={{ textDecoration: "underline" }}>교직원 로그인</Link> · <Link href="/signup" style={{ textDecoration: "underline" }}>교직원 가입 신청</Link></div>
+        <div><Link href="/login" style={{ textDecoration: "underline" }}>교직원 로그인</Link> · <Link href="/signup" style={{ textDecoration: "underline" }}>교직원 가입 신청</Link> · <Link href="/privacy" style={{ textDecoration: "underline", fontWeight: 700 }}>개인정보 처리방침</Link></div>
       </div></footer>
     </>
   );

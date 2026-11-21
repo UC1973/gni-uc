@@ -58,6 +58,7 @@ export async function signup(_: FormState, form: FormData): Promise<FormState> {
   const role = form.get("role") === "professor" ? "professor" : "univ_staff";
 
   if (!name || !email || !university_id) return { error: "이름, 이메일, 소속 대학을 모두 입력해 주세요." };
+  if (form.get("privacy_agree") !== "on") return { error: "개인정보 처리방침에 동의해 주세요." };
   if (password.length < 8) return { error: "비밀번호는 8자 이상이어야 합니다." };
   if (!/[A-Za-z]/.test(password) || !/\d/.test(password)) return { error: "비밀번호는 영문과 숫자를 모두 포함해야 합니다." };
   const supabase = await createClient();
@@ -72,7 +73,7 @@ export async function signup(_: FormState, form: FormData): Promise<FormState> {
     email,
     password,
     options: {
-      data: { name, university_id, role },
+      data: { name, university_id, role, privacy_agreed_at: new Date().toISOString(), privacy_version: "2026-11-21" },
       emailRedirectTo: `${await siteOrigin()}/auth/callback?next=/pending`,
     },
   });
