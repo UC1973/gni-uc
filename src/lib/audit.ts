@@ -7,7 +7,7 @@ export type AuditRow = {
 export const TABLE_LABEL: Record<string, string> = {
   profiles: "사용자", courses: "교과목", issues: "협의 안건", meetings: "회의", replies: "대학 회신", reply_files: "회신 파일",
   students: "학생", kpis: "성과지표", notices: "공지", materials: "홍보자료", site_settings: "사이트 설정",
-  universities: "참여대학", extra_programs: "비교과", extra_demand: "비교과 수요",
+  universities: "참여대학", extra_programs: "비교과", extra_demand: "비교과 수요", audit_log: "변경 이력",
 };
 export const ACTION_LABEL = { insert: "추가", update: "수정", delete: "삭제" } as const;
 
@@ -20,7 +20,7 @@ const FIELD_LABEL: Record<string, string> = {
   theory: "이론", practice: "실습", credits: "학점", sort: "순서", quota: "모집인원", depts: "학과", email_domains: "메일 도메인",
   object_path: "저장 경로", mime_type: "형식", uploaded_by: "올린 사람", author_id: "작성자", program_id: "프로그램",
   held_on: "일자", attendees: "참석", summary: "요약", material_url: "자료", description: "설명", unit: "단위", caption: "설명", url: "주소",
-  is_hub: "중심대학", short_name: "약칭",
+  is_hub: "중심대학", short_name: "약칭", before: "기준 일시(이전 기록)",
 };
 const VALUE_LABEL: Record<string, Record<string, string>> = {
   status: { draft: "(안)", wip: "협의 중", ok: "확정", pending: "승인 대기", approved: "승인", rejected: "반려" },
@@ -29,7 +29,10 @@ const VALUE_LABEL: Record<string, Record<string, string>> = {
 };
 const HIDDEN = new Set(["object_path", "uploaded_by", "author_id", "id"]);
 
-export function fieldLabel(k: string) { return FIELD_LABEL[k] ?? k; }
+export function fieldLabel(k: string, table?: string) {
+  if (table === "audit_log" && k === "count") return "파기 건수";
+  return FIELD_LABEL[k] ?? k;
+}
 
 export function formatValue(field: string, v: unknown): string {
   if (v === null || v === undefined) return "없음";
@@ -47,7 +50,7 @@ export function describe(row: AuditRow): string[] {
   return Object.entries(row.changes)
     .filter(([k]) => !HIDDEN.has(k))
     .map(([k, c]) => {
-      const label = fieldLabel(k);
+      const label = fieldLabel(k, row.table_name);
       if (row.action === "update") return `${label}: ${formatValue(k, c.from)} → ${formatValue(k, c.to)}`;
       if (row.action === "insert") return `${label}: ${formatValue(k, c.to)}`;
       return `${label}: ${formatValue(k, c.from)}`;
