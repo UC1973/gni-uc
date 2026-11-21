@@ -27,6 +27,7 @@
    - `supabase/migrations/20261121000200_grants.sql` — API 역할 권한
    - `supabase/migrations/20261121000300_email_confirmed.sql` — 승인 화면용 이메일 인증 여부
    - `supabase/migrations/20261121000400_email_domains.sql` — 대학별 메일 도메인, 가입 시 도메인 검사
+   - `supabase/migrations/20261121000500_split_policies.sql` — 정책 정리(성능 경고 해소)
    - `supabase/seed.sql` — 11.20. 협의 자료 기준 초기 데이터
    - 현재 운영 DB: Supabase **5P3S** 조직의 **GNI-UC** 프로젝트 (`qbjevtjeczecysbtridj`, 도쿄) — 위 SQL 모두 적용 완료
 2. **Authentication → URL Configuration**
@@ -35,6 +36,16 @@
 3. **Authentication → Emails → SMTP Settings** (인증 메일을 Resend로 보내기)
    - Host `smtp.resend.com` · Port `465` · User `resend` · Password = Resend API 키
    - Sender: `no-reply@gni-uc.org` / 이름 `GNI-UC 산업AX전공`
+
+### 메일 템플릿
+`supabase/templates/*.html` — 가입 인증, 비밀번호 재설정, 로그인 링크, 이메일 변경, 초대, 본인 확인 코드, 비밀번호·이메일 변경 알림.
+제목과 연결은 `supabase/config.toml`의 `[auth.email.template.*]`, `[auth.email.notification.*]`에 있으며 아래로 반영합니다.
+
+```bash
+supabase config push --remote=qbjevtjeczecysbtridj
+```
+
+메일 속 링크는 모두 `/auth/confirm?token_hash=…`로 연결되어, 어느 기기에서 눌러도 동작합니다.
 
 ### Resend
 1. 발신 도메인을 추가하고 DNS 인증을 완료합니다. (인증 전에는 본인 이메일로만 발송됩니다.)

@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
     const supabase = await createClient();
     const { data, error } = await supabase.auth.verifyOtp({ type, token_hash });
     if (!error) {
-      if (data.user?.id) await notifyIfPending(supabase, data.user.id);
+      if (data.user?.id && (type === "email" || type === "signup")) await notifyIfPending(supabase, data.user.id);
       return NextResponse.redirect(`${origin}${next}`);
     }
   }

@@ -28,6 +28,7 @@ export function LoginForm({ next, initialError }: { next: string; initialError?:
         <div className="fld"><label htmlFor="email">이메일</label><input id="email" name="email" type="email" autoComplete="email" required /></div>
         <div className="fld"><label htmlFor="password">비밀번호</label><input id="password" name="password" type="password" autoComplete="current-password" required /></div>
         <button className="btn btn-p" style={{ width: "100%", justifyContent: "center" }} disabled={pending}>{pending ? "확인 중…" : "로그인"}</button>
+        <p className="small" style={{ marginTop: 10, textAlign: "right" }}><Link href="/forgot-password" className="muted">비밀번호를 잊으셨나요?</Link></p>
       </form>
       {state?.unconfirmedEmail && <div style={{ marginTop: 12 }}><ResendConfirmation email={state.unconfirmedEmail} /></div>}
       <p className="small muted" style={{ marginTop: 14, textAlign: "center" }}>계정이 없나요? <Link href="/signup" style={{ color: "var(--blue)", fontWeight: 600 }}>가입 신청</Link></p>
