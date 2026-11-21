@@ -102,16 +102,26 @@ section.sec{padding:clamp(60px,8vw,104px) 0 0}
 .card ul{padding-left:18px;margin-top:8px}
 .ico{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-size:21px;background:var(--info-bg)}
 
-/* structure tree */
-.tree{display:grid;gap:10px;max-width:760px}
-.node{display:flex;align-items:center;gap:12px;padding:14px 18px;border-radius:12px;background:var(--surface);border:1px solid var(--line)}
-.node small{color:var(--muted);font-size:13px}
-.node .lv{font-size:11px;font-weight:700;color:var(--muted);width:64px;flex:none}
-.node.me{border:2px solid var(--blue);background:color-mix(in srgb,var(--blue) 6%,var(--surface))}
-.indent1{margin-left:28px}.indent2{margin-left:56px}.indent3{margin-left:84px}
-@media(max-width:600px){.indent1{margin-left:10px}.indent2{margin-left:20px}.indent3{margin-left:30px}.node .lv{display:none}}
-.sib{display:flex;gap:10px;flex-wrap:wrap}
-.sib .node{flex:1;min-width:200px;opacity:.75}
+/* About */
+.about-intro .lead{word-break:keep-all}
+.about-intro .lead:first-child{margin-bottom:10px}
+.tree,.tree ul{list-style:none;margin:0;padding:0}
+.tree{max-width:820px;word-break:keep-all}
+.tree .tree-children{margin:10px 0 0 16px;padding-left:12px;border-left:1px solid var(--line)}
+.tree-models,.tree-universities{display:grid;gap:10px}
+.tree-models{grid-template-columns:minmax(0,1fr) minmax(0,2fr)}
+.tree-universities{grid-template-columns:repeat(2,minmax(0,1fr))}
+.tree .node{display:flex;align-items:center;gap:12px;padding:14px 18px;border-radius:12px;background:var(--surface);border:1px solid var(--line)}
+.tree .node small{color:var(--muted);font-size:13px}
+.tree .lv{font-size:11px;font-weight:700;color:var(--muted);width:64px;flex:none}
+.tree .node.me{border:2px solid var(--blue);background:color-mix(in srgb,var(--blue) 6%,var(--surface))}
+.tree .me small b{color:var(--blue)}
+@media(max-width:740px){
+  .tree-models,.tree-universities{grid-template-columns:1fr}
+  .tree .tree-children{margin-left:6px;padding-left:10px}
+  .tree .node{padding:12px 14px}
+  .tree .lv{width:auto}
+}
 
 /* competency */
 .comp .card{border-top:3px solid var(--cyan)}
