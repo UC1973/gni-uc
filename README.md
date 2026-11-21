@@ -21,7 +21,7 @@
 ## 1. 처음 설정하기
 
 ### Supabase
-기존 사이트 작업은 GitHub `UC1973`으로 로그인한 Supabase의 **GNI → GNI-UC** (`qbjevtjeczecysbtridj`, 도쿄)를 사용합니다. 새 프로젝트를 만들지 않습니다. 아래 초기화 절차는 별도 환경을 새로 구성할 때만 사용합니다.
+기존 사이트 작업은 GitHub `UC1973`으로 로그인한 Supabase의 **GNI-UC 조직 → GNI-UC 프로젝트** (`qbjevtjeczecysbtridj`, 도쿄)를 사용합니다. 새 프로젝트를 만들지 않습니다. 아래 초기화 절차는 별도 환경을 새로 구성할 때만 사용합니다.
 
 1. 별도 환경이 필요한 경우 새 프로젝트를 만들고(권장 리전: Seoul `ap-northeast-2`) SQL을 순서대로 실행합니다.
    - `supabase/migrations/20261121000000_init.sql` — 테이블·권한(RLS)
@@ -35,7 +35,7 @@
    - `supabase/migrations/20261121000800_file_scan.sql` — 회신 파일 보안 검사 결과(sha256, 차단 기록)
    - `supabase/migrations/20261121000900_audit_retention.sql` — 변경 이력 3년 보관 후 자동 파기(pg_cron, 매일 03:00 KST)
    - `supabase/seed.sql` — 11.20. 협의 자료 기준 초기 데이터
-   - 현재 운영 DB: Supabase **GNI** 조직 (`aqgieoclveecopljvtuo`)의 **GNI-UC** 프로젝트 (`qbjevtjeczecysbtridj`, 도쿄) — 위 SQL 모두 적용 완료
+   - 현재 운영 DB: Supabase **GNI-UC** 조직 (`aqgieoclveecopljvtuo`)의 **GNI-UC** 프로젝트 (`qbjevtjeczecysbtridj`, 도쿄) — 위 SQL 모두 적용 완료
 2. **Authentication → URL Configuration**
    - Site URL: `https://gni-uc.org`
    - Redirect URLs: `https://gni-uc.org/auth/callback`, `https://www.gni-uc.org/auth/callback`, `https://gni-uc.vercel.app/auth/callback`, `http://localhost:3000/auth/callback`
@@ -145,13 +145,21 @@ supabase db query --remote=qbjevtjeczecysbtridj --yes -f supabase/tests/rls_chec
 | 서비스 | 기존 운영 대상 |
 |---|---|
 | GitHub | `UC1973/gni-uc` · 계정 `UC1973` · 운영 브랜치 `main` |
-| Supabase | GitHub `UC1973` 로그인 · `GNI` 조직 (`aqgieoclveecopljvtuo`)의 `GNI-UC` · `qbjevtjeczecysbtridj` |
+| Supabase | GitHub `UC1973` 로그인 · `GNI-UC` 조직 (`aqgieoclveecopljvtuo`)의 `GNI-UC` · `qbjevtjeczecysbtridj` |
 | Vercel | GitHub `UC1973` 연결 · scope `gni-uc`의 `gni-uc` (`prj_CXpjJJhxGjUxY2AutDeFDFj6fAgi`) · `https://gni-uc.org` |
 
 작업 규칙은 [AGENTS.md](AGENTS.md)의 **GitHub·Supabase·Vercel 자동 연동 규칙**을 따릅니다. `CLAUDE.md`도 같은 규칙을 불러옵니다. 각 서비스의 인증은 독립적이므로 GitHub 계정을 전환한 뒤에도 Supabase project ref와 Vercel scope·Git 저장소 연결을 각각 확인합니다.
 
 CLI와 MCP 플러그인의 인증도 별개입니다. 플러그인이 다른 계정에 연결되어 있으면 계정·대상이 검증된 CLI로 작업합니다. 로컬 연결 정보와 `.env.local`은 Git에서 제외하며, DB 설정 값은 출력하지 않습니다.
 
-배포 요청 시 작업 브랜치를 push하고 `UC1973/gni-uc`의 PR을 생성한 뒤 검사를 확인하여 `main`에 병합합니다. 기존 Vercel Git 연동이 운영 배포를 수행하므로 같은 커밋을 CLI로 중복 배포하지 않습니다. 병합 커밋의 Vercel 성공 상태와 운영 도메인 응답을 확인한 뒤 완료를 보고합니다.
+Supabase 프로젝트의 GitHub 저장소 연결은 `UC1973/gni-uc`, 작업 디렉터리는 `.`, 운영 브랜치는 `main`입니다. `Deploy to production`이 활성화되어 `main`에 병합하면 신규 마이그레이션이 운영 DB에 자동 반영됩니다. `Automatic branching`은 비활성 상태이며, 미리보기 DB 자동 생성은 별도로 요청받은 경우에 설정합니다.
 
-앱의 DB 연결은 Vercel에 등록된 `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`를 유지합니다. 운영 URL은 `https://qbjevtjeczecysbtridj.supabase.co`여야 합니다. DB 마이그레이션은 Git 병합과 별개이며, 요청된 변경에 대해서만 대상 DB와 적용 이력을 확인하여 수행합니다. 인증이나 접근 권한이 없으면 해당 서비스의 올바른 계정 연결이 필요하며, 규칙 파일 자체가 로그인이나 DB 자동 마이그레이션을 구성하지는 않습니다.
+기존 Supabase 계정을 연결하는 Vercel 외부 연동(`icfg_cyPC6HjRohDlNImFTUfT99kZ`)으로 Supabase `GNI-UC`와 Vercel `gni-uc`를 연결합니다. 접근 범위는 이 Vercel 프로젝트 한 개이며, DB 환경변수 동기화 대상은 Production, 공개 변수 접두사는 `NEXT_PUBLIC_`입니다. [Supabase 연결 설정](https://supabase.com/dashboard/project/qbjevtjeczecysbtridj/settings/integrations)과 [Vercel 연동 설정](https://vercel.com/gni-uc/~/integrations/supabase/icfg_cyPC6HjRohDlNImFTUfT99kZ)에서 확인할 수 있습니다.
+
+앱이 사용하는 `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`는 연동의 `SUPABASE_URL` / `SUPABASE_PUBLISHABLE_KEY`와 일치해야 합니다. 키나 프로젝트 연결을 바꿀 때 이 값도 함께 검증합니다.
+
+배포 요청 시 작업 브랜치를 push하고 `UC1973/gni-uc`의 PR을 생성한 뒤 검사를 확인하여 `main`에 병합합니다. 기존 Vercel Git 연동이 웹 운영 배포를, Supabase GitHub 연동이 운영 DB 배포를 수행하므로 같은 변경을 CLI로 중복 배포하지 않습니다. 병합 커밋에 대한 두 서비스의 배포 결과와 운영 도메인 응답을 확인한 뒤 완료를 보고합니다.
+
+앱의 DB 연결은 Vercel에 등록된 `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`를 유지합니다. 운영 URL은 `https://qbjevtjeczecysbtridj.supabase.co`여야 합니다. 마이그레이션은 `supabase/migrations`에 새 파일로 추가하고 PR을 통해 `main`에 병합합니다. 운영 DB 적용 성공 여부는 Supabase 배포 로그와 원격 마이그레이션 이력으로 검증합니다.
+
+자동 배포 설정 시 기존 마이그레이션 10개(`20261121000000`~`20261121000900`)의 실제 반영 상태를 대조하고, SQL을 재실행하지 않고 적용 이력만 등록했습니다. 등록 전후 업무 스키마와 테이블별 행 수가 동일하고, `supabase db push --remote=qbjevtjeczecysbtridj --dry-run --skip-vault`에서 실행 대기 마이그레이션이 없는 것을 확인했습니다.
