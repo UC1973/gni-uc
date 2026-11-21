@@ -32,15 +32,18 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 | 서비스 | 기본 대상 |
 |---|---|
 | GitHub | 로그인 `UC1973`, 저장소 `UC1973/gni-uc`, 원격 `https://github.com/UC1973/gni-uc.git`, 운영 브랜치 `main` |
-| Supabase | GitHub `UC1973`으로 로그인한 계정의 `GNI` 조직 (`aqgieoclveecopljvtuo`) → `GNI-UC`, project ref `qbjevtjeczecysbtridj` (도쿄) |
+| Supabase | GitHub `UC1973`으로 로그인한 계정의 `GNI-UC` 조직 (`aqgieoclveecopljvtuo`) → `GNI-UC`, project ref `qbjevtjeczecysbtridj` (도쿄) |
 | Vercel | GitHub `UC1973`에 연결된 `gni-uc` scope (`team_zi1wPsWRFLlvC38S5w2nV6ML`) → `gni-uc` 프로젝트 (`prj_CXpjJJhxGjUxY2AutDeFDFj6fAgi`), Git 저장소 `UC1973/gni-uc`, 운영 도메인 `https://gni-uc.org` |
 
 - 작업 전에 `git remote -v`, `gh api user --jq .login`, `gh repo view UC1973/gni-uc`로 원격과 계정을 확인한다. `UC1973`이 이미 인증되어 있으면 필요 시 `gh auth switch --hostname github.com --user UC1973`으로 전환한다. 커밋 작성자도 저장소 로컬 Git 설정에서 확인한다.
 - Supabase는 MCP 또는 `supabase projects list`로 위 project ref에 대한 접근 권한을 확인한다. CLI 연결이 필요하면 해당 계정으로 인증된 상태에서 `supabase link --project-ref qbjevtjeczecysbtridj`을 사용한다. 원격 DB 명령은 설치된 CLI의 `--help`를 확인하고 대상을 명시한다(v3: `--remote=qbjevtjeczecysbtridj`).
+- Supabase의 GitHub 연결은 `UC1973/gni-uc`, 작업 디렉터리 `.`로 설정되어 있다. 사용자가 승인한 범위는 저장소 연결이며, `Deploy to production`과 `Automatic branching`은 비활성 상태다. 운영 DB 자동 배포나 미리보기 DB 자동 생성은 별도로 요청받은 경우에 설정한다.
 - Vercel은 MCP 또는 `vercel project inspect gni-uc --scope gni-uc --non-interactive`로 scope·프로젝트·Git 저장소를 확인한다. 로컬 연결이 필요하면 확인된 기존 프로젝트에 `vercel link --project gni-uc --scope gni-uc`로 연결한다. `.vercel/project.json`의 조직/프로젝트 ID가 대상과 일치하는지 확인한다.
+- 기존 Supabase 프로젝트의 Vercel 연결은 `Link Existing Supabase Account` 방식의 외부 연동 `icfg_cyPC6HjRohDlNImFTUfT99kZ`를 사용한다. 접근 대상은 Vercel `gni-uc` 프로젝트 한 개이며, DB 환경변수는 Production에만 동기화하고 공개 변수 접두사는 `NEXT_PUBLIC_`를 사용한다. 연결 상태는 Supabase 프로젝트의 Integrations 화면에서 확인한다.
 - 로그인 계정이 다르거나 위 프로젝트가 보이지 않으면 해당 서비스의 인증 문제를 알리고 올바른 계정 연결을 요청한다. 다른 계정의 동명 프로젝트로 대체하거나 새 프로젝트를 만들지 않는다. 이미 인증된 서비스에서 수행할 수 있는 요청 작업은 계속 진행한다.
 - CLI와 MCP 플러그인의 인증은 별개다. MCP가 다른 계정에 연결되어 있으면 해당 MCP로 이 프로젝트를 변경하지 않고, 위 계정·프로젝트가 확인된 CLI를 사용한다. 로컬 Vercel 연결은 `.vercel/project.json`, Supabase 연결은 `supabase/.temp/project-ref`로 확인한다.
 - DB 연결은 기존 `NEXT_PUBLIC_SUPABASE_URL`과 `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`를 재사용하며, 운영 URL의 project ref가 위 대상인지 확인한다. 로컬은 `.env.local`, 운영은 해당 Vercel 프로젝트의 환경변수로 관리하고 비밀값은 출력하거나 커밋하지 않는다. 개발용 DB 검증은 별도로 지정된 개발 프로젝트에서 수행한다.
+- 직접 등록한 앱 환경변수와 연동이 관리하는 환경변수가 함께 있으면 `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`가 연동의 `SUPABASE_URL` / `SUPABASE_PUBLISHABLE_KEY`와 일치하는지 확인한다.
 - `push`, `gh pr`, `merge`, `deploy`를 함께 요청하면 검증 → 작업 브랜치 커밋 → `git push` → `gh pr create --repo UC1973/gni-uc --base main` → PR 검사 확인 → `gh pr merge --repo UC1973/gni-uc` → 운영 배포 확인까지 이어서 수행한다. 사용자가 일부 단계만 요청하거나 배포 보류를 지시하면 그 범위를 따른다. 이미 요청한 단계는 반복 승인을 요구하지 않는다.
 - 배포는 `main` 병합에 따른 기존 Vercel Git 자동 배포를 우선한다. 같은 커밋에 `vercel --prod`를 추가 실행해 중복 배포하지 않는다. 자동 배포가 실행되지 않은 경우 원인을 확인하고, 요청 범위 안에서 확인된 프로젝트에만 수동 배포한다.
 - 배포 완료는 병합된 커밋 SHA의 Vercel 성공 상태와 운영 도메인 응답을 함께 확인한 뒤 보고한다. DB 연동 변경이 있으면 대상 project ref와 읽기 요청도 확인한다. Git 병합만으로 DB 마이그레이션이 적용되었다고 간주하지 않고, 적용 결과를 별도로 검증한다.
