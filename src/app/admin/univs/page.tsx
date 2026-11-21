@@ -4,14 +4,23 @@ import { Tag } from "@/components/ui";
 import { PageHead } from "@/components/admin";
 import { updateReply } from "../actions";
 import type { Reply, University } from "@/lib/types";
+import { REPLY_KINDS, type ReplyFile, type ReplyKind } from "@/lib/reply-files";
+import { ReplyFiles } from "./ReplyFiles";
 
 export default async function UnivsPage() {
   const me = await requireStaff();
   const hub = me.role === "hub_admin";
   const supabase = await createClient();
-  const [u, r] = await Promise.all([supabase.from("universities").select("*").order("sort"), supabase.from("replies").select("*")]);
+  const [u, r, f] = await Promise.all([
+    supabase.from("universities").select("*").order("sort"),
+    supabase.from("replies").select("*"),
+    supabase.from("reply_files").select("id,university_id,kind,object_path,file_name,size_bytes,created_at").order("created_at"),
+  ]);
   const univs = (u.data ?? []) as University[];
   const replies = (r.data ?? []) as Reply[];
+  const files = (f.data ?? []) as ReplyFile[];
+  const fileUnivs = univs.filter((x) => hub || x.id === me.university_id);
+  const canWrite = (uid: string) => hub || (me.role === "univ_staff" && me.university_id === uid);
 
   return (
     <>
@@ -50,7 +59,20 @@ export default async function UnivsPage() {
           </tbody>
         </table>
       </div>
-      <p className="small muted">회신 파일 업로드(Supabase Storage)는 다음 단계에서 추가합니다. 지금은 제출 여부만 체크합니다.</p>
+      <div className="panel">
+        <h2>회신 파일 <span className="aside">PDF·HWP·엑셀·워드·ZIP·이미지 · 파일당 20MB · 올리면 제출 여부가 자동 체크됩니다</span></h2>
+        <div className="rf-grid">
+          {fileUnivs.map((x) => (
+            <div className="rf-card" key={x.id}>
+              <h3>{x.name} {x.is_hub && <Tag tone="info">중심</Tag>}</h3>
+              {(Object.keys(REPLY_KINDS) as ReplyKind[]).map((k) => (
+                <ReplyFiles key={k} universityId={x.id} kind={k} label={REPLY_KINDS[k]} files={files.filter((y) => y.university_id === x.id && y.kind === k)} canWrite={canWrite(x.id)} />
+              ))}
+            </div>
+          ))}
+        </div>
+        <p className="small muted" style={{ marginTop: 10 }}>{hub ? "사업단은 모든 대학의 파일을 내려받을 수 있습니다." : "소속 대학 파일만 보이며, 다른 대학 파일은 볼 수 없습니다."} 파일은 비공개로 저장되고 내려받기 링크는 60초 동안만 유효합니다.</p>
+      </div>
     </>
   );
 }
