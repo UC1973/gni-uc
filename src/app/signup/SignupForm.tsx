@@ -30,7 +30,7 @@ export function SignupForm({ universities }: { universities: University[] }) {
       <div className="fld"><label htmlFor="email">대학 이메일</label>
         <input id="email" name="email" type="email" required autoComplete="email" placeholder={domains[0] ? `name@${domains[0]}` : undefined} />
         {domains.length > 0 && <p className="small muted" style={{ marginTop: 6 }}>{selected?.name} 메일(@{domains.join(", @")})만 가입할 수 있습니다.</p>}</div>
-      <div className="fld"><label htmlFor="password">비밀번호 (8자 이상)</label><input id="password" name="password" type="password" minLength={8} required autoComplete="new-password" /></div>
+      <div className="fld"><label htmlFor="password">비밀번호 (8자 이상, 영문+숫자)</label><input id="password" name="password" type="password" minLength={8} required autoComplete="new-password" /></div>
       <button className="btn btn-p" style={{ width: "100%", justifyContent: "center" }} disabled={pending}>{pending ? "신청 중…" : "가입 신청"}</button>
       <p className="small muted" style={{ marginTop: 14, textAlign: "center" }}>이미 계정이 있나요? <Link href="/login" style={{ color: "var(--blue)", fontWeight: 600 }}>로그인</Link></p>
     </form>

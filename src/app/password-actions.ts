@@ -21,6 +21,7 @@ export async function setNewPassword(_: FormState, form: FormData): Promise<Form
   const confirm = String(form.get("confirm") ?? "");
   if (password.length < 8) return { error: "비밀번호는 8자 이상이어야 합니다." };
   if (password !== confirm) return { error: "두 비밀번호가 서로 다릅니다." };
+  if (!/[A-Za-z]/.test(password) || !/\d/.test(password)) return { error: "비밀번호는 영문과 숫자를 모두 포함해야 합니다." };
 
   const supabase = await createClient();
   const { data: auth } = await supabase.auth.getUser();
@@ -28,8 +29,9 @@ export async function setNewPassword(_: FormState, form: FormData): Promise<Form
 
   const { error } = await supabase.auth.updateUser({ password });
   if (error) {
+    if (error.code === "reauthentication_needed") return { error: "보안을 위해 다시 로그인한 뒤 비밀번호를 바꿔 주세요." };
     if (error.code === "same_password") return { error: "이전과 다른 비밀번호를 입력해 주세요." };
-    if (error.code === "weak_password") return { error: "더 안전한 비밀번호를 사용해 주세요. (영문·숫자·기호 조합)" };
+    if (error.code === "weak_password") return { error: "더 안전한 비밀번호를 사용해 주세요. 영문·숫자를 포함하고, 유출된 적 있는 비밀번호는 쓸 수 없습니다." };
     return { error: "비밀번호를 바꾸지 못했습니다. 다시 시도해 주세요." };
   }
   redirect("/admin");

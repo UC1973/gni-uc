@@ -59,6 +59,7 @@ export async function signup(_: FormState, form: FormData): Promise<FormState> {
 
   if (!name || !email || !university_id) return { error: "이름, 이메일, 소속 대학을 모두 입력해 주세요." };
   if (password.length < 8) return { error: "비밀번호는 8자 이상이어야 합니다." };
+  if (!/[A-Za-z]/.test(password) || !/\d/.test(password)) return { error: "비밀번호는 영문과 숫자를 모두 포함해야 합니다." };
   const supabase = await createClient();
   const { data: univ } = await supabase.from("universities").select("name,email_domains").eq("id", university_id).maybeSingle();
   if (!univ) return { error: "소속 대학을 선택해 주세요." };
@@ -77,6 +78,7 @@ export async function signup(_: FormState, form: FormData): Promise<FormState> {
   });
   if (error) {
     if (error.message.toLowerCase().includes("already")) return { error: "이미 가입된 이메일입니다." };
+    if (error.code === "weak_password") return { error: "비밀번호는 8자 이상, 영문과 숫자를 모두 포함해야 합니다. 유출된 적 있는 비밀번호도 사용할 수 없습니다." };
     if (error.message.includes("GNIUC_EMAIL_DOMAIN") || error.message.includes("Database error")) return { error: "소속 대학 이메일 주소로만 가입할 수 있습니다." };
     return { error: "가입 신청에 실패했습니다. 잠시 후 다시 시도해 주세요." };
   }
