@@ -32,13 +32,14 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 | 서비스 | 기본 대상 |
 |---|---|
 | GitHub | 로그인 `UC1973`, 저장소 `UC1973/gni-uc`, 원격 `https://github.com/UC1973/gni-uc.git`, 운영 브랜치 `main` |
-| Supabase | GitHub `UC1973`으로 로그인한 계정의 `5P3S` 조직 → `GNI-UC`, project ref `qbjevtjeczecysbtridj` (도쿄) |
-| Vercel | GitHub `UC1973`에 연결된 `gni-uc` scope → `gni-uc` 프로젝트, Git 저장소 `UC1973/gni-uc`, 운영 도메인 `https://gni-uc.org` |
+| Supabase | GitHub `UC1973`으로 로그인한 계정의 `GNI` 조직 (`aqgieoclveecopljvtuo`) → `GNI-UC`, project ref `qbjevtjeczecysbtridj` (도쿄) |
+| Vercel | GitHub `UC1973`에 연결된 `gni-uc` scope (`team_zi1wPsWRFLlvC38S5w2nV6ML`) → `gni-uc` 프로젝트 (`prj_CXpjJJhxGjUxY2AutDeFDFj6fAgi`), Git 저장소 `UC1973/gni-uc`, 운영 도메인 `https://gni-uc.org` |
 
 - 작업 전에 `git remote -v`, `gh api user --jq .login`, `gh repo view UC1973/gni-uc`로 원격과 계정을 확인한다. `UC1973`이 이미 인증되어 있으면 필요 시 `gh auth switch --hostname github.com --user UC1973`으로 전환한다. 커밋 작성자도 저장소 로컬 Git 설정에서 확인한다.
 - Supabase는 MCP 또는 `supabase projects list`로 위 project ref에 대한 접근 권한을 확인한다. CLI 연결이 필요하면 해당 계정으로 인증된 상태에서 `supabase link --project-ref qbjevtjeczecysbtridj`을 사용한다. 원격 DB 명령은 설치된 CLI의 `--help`를 확인하고 대상을 명시한다(v3: `--remote=qbjevtjeczecysbtridj`).
 - Vercel은 MCP 또는 `vercel project inspect gni-uc --scope gni-uc --non-interactive`로 scope·프로젝트·Git 저장소를 확인한다. 로컬 연결이 필요하면 확인된 기존 프로젝트에 `vercel link --project gni-uc --scope gni-uc`로 연결한다. `.vercel/project.json`의 조직/프로젝트 ID가 대상과 일치하는지 확인한다.
 - 로그인 계정이 다르거나 위 프로젝트가 보이지 않으면 해당 서비스의 인증 문제를 알리고 올바른 계정 연결을 요청한다. 다른 계정의 동명 프로젝트로 대체하거나 새 프로젝트를 만들지 않는다. 이미 인증된 서비스에서 수행할 수 있는 요청 작업은 계속 진행한다.
+- CLI와 MCP 플러그인의 인증은 별개다. MCP가 다른 계정에 연결되어 있으면 해당 MCP로 이 프로젝트를 변경하지 않고, 위 계정·프로젝트가 확인된 CLI를 사용한다. 로컬 Vercel 연결은 `.vercel/project.json`, Supabase 연결은 `supabase/.temp/project-ref`로 확인한다.
 - DB 연결은 기존 `NEXT_PUBLIC_SUPABASE_URL`과 `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`를 재사용하며, 운영 URL의 project ref가 위 대상인지 확인한다. 로컬은 `.env.local`, 운영은 해당 Vercel 프로젝트의 환경변수로 관리하고 비밀값은 출력하거나 커밋하지 않는다. 개발용 DB 검증은 별도로 지정된 개발 프로젝트에서 수행한다.
 - `push`, `gh pr`, `merge`, `deploy`를 함께 요청하면 검증 → 작업 브랜치 커밋 → `git push` → `gh pr create --repo UC1973/gni-uc --base main` → PR 검사 확인 → `gh pr merge --repo UC1973/gni-uc` → 운영 배포 확인까지 이어서 수행한다. 사용자가 일부 단계만 요청하거나 배포 보류를 지시하면 그 범위를 따른다. 이미 요청한 단계는 반복 승인을 요구하지 않는다.
 - 배포는 `main` 병합에 따른 기존 Vercel Git 자동 배포를 우선한다. 같은 커밋에 `vercel --prod`를 추가 실행해 중복 배포하지 않는다. 자동 배포가 실행되지 않은 경우 원인을 확인하고, 요청 범위 안에서 확인된 프로젝트에만 수동 배포한다.
