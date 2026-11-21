@@ -77,7 +77,7 @@ export async function signup(_: FormState, form: FormData): Promise<FormState> {
   });
   if (error) {
     if (error.message.toLowerCase().includes("already")) return { error: "이미 가입된 이메일입니다." };
-    if (error.message.includes("Database error")) return { error: "소속 대학 이메일 주소로만 가입할 수 있습니다." };
+    if (error.message.includes("GNIUC_EMAIL_DOMAIN") || error.message.includes("Database error")) return { error: "소속 대학 이메일 주소로만 가입할 수 있습니다." };
     return { error: "가입 신청에 실패했습니다. 잠시 후 다시 시도해 주세요." };
   }
   // 이미 가입된 이메일이면 Supabase는 오류 대신 빈 identities를 돌려줍니다.
