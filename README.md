@@ -158,7 +158,7 @@ Supabase 프로젝트의 GitHub 저장소 연결은 `UC1973/gni-uc`, 작업 디�
 
 앱이 사용하는 `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`는 연동의 `SUPABASE_URL` / `SUPABASE_PUBLISHABLE_KEY`와 일치해야 합니다. 키나 프로젝트 연결을 바꿀 때 이 값도 함께 검증합니다.
 
-배포 요청 시 작업 브랜치를 push하고 `UC1973/gni-uc`의 PR을 생성한 뒤 검사를 확인하여 `main`에 병합합니다. 기존 Vercel Git 연동이 웹 운영 배포를, Supabase GitHub 연동이 운영 DB 배포를 수행하므로 같은 변경을 CLI로 중복 배포하지 않습니다. 병합 커밋에 대한 두 서비스의 배포 결과와 운영 도메인 응답을 확인한 뒤 완료를 보고합니다.
+배포 요청 시 작업 브랜치를 push하고 `UC1973/gni-uc`의 PR을 생성한 뒤 검사를 확인하여 `main`에 병합합니다. Vercel은 운영 빌드를 만들고, 같은 `main` 커밋의 Supabase 운영 DB 배포 검사(`Supabase Preview`)가 성공하면 `gni-uc.org`를 새 빌드로 전환합니다. [Vercel Deployment Checks](https://vercel.com/gni-uc/gni-uc/settings/build-and-deployment#deployment-checks)에서 이 검사를 Production 필수 항목으로 설정합니다. 실패한 경우 기존 배포가 계속 서비스되며, 오류를 수정해 다시 배포합니다. 병합 커밋의 두 서비스 배포 결과와 운영 도메인 응답을 확인합니다.
 
 앱의 DB 연결은 Vercel에 등록된 `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`를 유지합니다. 운영 URL은 `https://qbjevtjeczecysbtridj.supabase.co`여야 합니다. 마이그레이션은 `supabase/migrations`에 새 파일로 추가하고 PR을 통해 `main`에 병합합니다. 운영 DB 적용 성공 여부는 Supabase 배포 로그와 원격 마이그레이션 이력으로 검증합니다.
 

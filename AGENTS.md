@@ -46,7 +46,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - DB 연결은 기존 `NEXT_PUBLIC_SUPABASE_URL`과 `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`를 재사용하며, 운영 URL의 project ref가 위 대상인지 확인한다. 로컬은 `.env.local`, 운영은 해당 Vercel 프로젝트의 환경변수로 관리하고 비밀값은 출력하거나 커밋하지 않는다. 개발용 DB 검증은 별도로 지정된 개발 프로젝트에서 수행한다.
 - 직접 등록한 앱 환경변수와 연동이 관리하는 환경변수가 함께 있으면 `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`가 연동의 `SUPABASE_URL` / `SUPABASE_PUBLISHABLE_KEY`와 일치하는지 확인한다.
 - `push`, `gh pr`, `merge`, `deploy`를 함께 요청하면 검증 → 작업 브랜치 커밋 → `git push` → `gh pr create --repo UC1973/gni-uc --base main` → PR 검사 확인 → `gh pr merge --repo UC1973/gni-uc` → 운영 배포 확인까지 이어서 수행한다. 사용자가 일부 단계만 요청하거나 배포 보류를 지시하면 그 범위를 따른다. 이미 요청한 단계는 반복 승인을 요구하지 않는다.
-- 배포는 `main` 병합에 따른 기존 Vercel Git 자동 배포를 우선한다. 같은 커밋에 `vercel --prod`를 추가 실행해 중복 배포하지 않는다. 자동 배포가 실행되지 않은 경우 원인을 확인하고, 요청 범위 안에서 확인된 프로젝트에만 수동 배포한다.
+- `main` 병합 시 Vercel은 운영 빌드를 생성하고, Production의 필수 Deployment Check인 `Supabase Preview`가 같은 커밋에서 성공한 뒤 운영 도메인을 전환한다. 운영 DB 배포에도 이 검사 이름이 사용된다. 검사에 실패하면 원인을 수정하고 정상 배포 경로로 다시 배포한다. 운영 반영에 `Force Promote`를 사용하거나 같은 커밋을 `vercel --prod`로 중복 배포하지 않는다.
 - 배포 완료는 병합된 커밋 SHA의 Vercel 배포, Supabase 운영 DB 배포 성공 상태, 운영 도메인 응답을 함께 확인한 뒤 보고한다. DB 연동 변경이 있으면 대상 project ref와 읽기 요청도 확인한다. Git 병합만으로 DB 마이그레이션이 적용되었다고 간주하지 않고, 원격 적용 이력과 배포 로그를 검증한다.
 
 ## Claude Code와 Codex 인수인계
