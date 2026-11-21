@@ -21,7 +21,9 @@
 ## 1. 처음 설정하기
 
 ### Supabase
-1. 새 프로젝트를 만들고(리전: Seoul `ap-northeast-2`) SQL을 순서대로 실행합니다.
+기존 사이트 작업은 GitHub `UC1973`으로 로그인한 Supabase의 **5P3S → GNI-UC** (`qbjevtjeczecysbtridj`, 도쿄)를 사용합니다. 새 프로젝트를 만들지 않습니다. 아래 초기화 절차는 별도 환경을 새로 구성할 때만 사용합니다.
+
+1. 별도 환경이 필요한 경우 새 프로젝트를 만들고(권장 리전: Seoul `ap-northeast-2`) SQL을 순서대로 실행합니다.
    - `supabase/migrations/20261121000000_init.sql` — 테이블·권한(RLS)
    - `supabase/migrations/20261121000100_harden.sql` — 권한 함수 비공개 스키마 이동
    - `supabase/migrations/20261121000200_grants.sql` — API 역할 권한
@@ -137,3 +139,17 @@ supabase db query --remote=qbjevtjeczecysbtridj --yes -f supabase/tests/rls_chec
 역할별(타 대학 담당자·교수·승인 대기·비로그인) 권한과 변경 이력 위변조 방지 등 25개 항목을 시험하고, 마지막에 예외로 전부 되돌립니다. 결과는 `RLS_RESULT | ok … ` 형태로 출력되며 `FAIL`이 없어야 합니다.
 
 적용된 보호: RLS(대학별 데이터 분리), 소속 대학 메일 도메인 가입 제한(DB 트리거), 사업단 승인제, 비밀번호 8자+영문·숫자, 유출 비밀번호 차단, 비밀번호 변경 시 재인증, 12시간 미사용 로그아웃, 비공개 파일 저장소 + 60초 서명 URL, CSP·X-Frame-Options 등 보안 헤더, 관리 화면 noindex·no-store, DB SSL 강제, 매일 백업, 변경 이력(14개 테이블, `/admin/audit`, CSV 내려받기, 3년 후 자동 파기).
+
+## 6. GitHub·Supabase·Vercel 연동과 배포
+
+| 서비스 | 기존 운영 대상 |
+|---|---|
+| GitHub | `UC1973/gni-uc` · 계정 `UC1973` · 운영 브랜치 `main` |
+| Supabase | GitHub `UC1973` 로그인 · `5P3S` 조직의 `GNI-UC` · `qbjevtjeczecysbtridj` |
+| Vercel | GitHub `UC1973` 연결 · scope `gni-uc`의 `gni-uc` · `https://gni-uc.org` |
+
+작업 규칙은 [AGENTS.md](AGENTS.md)의 **GitHub·Supabase·Vercel 자동 연동 규칙**을 따릅니다. `CLAUDE.md`도 같은 규칙을 불러옵니다. 각 서비스의 인증은 독립적이므로 GitHub 계정을 전환한 뒤에도 Supabase project ref와 Vercel scope·Git 저장소 연결을 각각 확인합니다.
+
+배포 요청 시 작업 브랜치를 push하고 `UC1973/gni-uc`의 PR을 생성한 뒤 검사를 확인하여 `main`에 병합합니다. 기존 Vercel Git 연동이 운영 배포를 수행하므로 같은 커밋을 CLI로 중복 배포하지 않습니다. 병합 커밋의 Vercel 성공 상태와 운영 도메인 응답을 확인한 뒤 완료를 보고합니다.
+
+앱의 DB 연결은 Vercel에 등록된 `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`를 유지합니다. 운영 URL은 `https://qbjevtjeczecysbtridj.supabase.co`여야 합니다. DB 마이그레이션은 Git 병합과 별개이며, 요청된 변경에 대해서만 대상 DB와 적용 이력을 확인하여 수행합니다. 인증이나 접근 권한이 없으면 해당 서비스의 올바른 계정 연결이 필요하며, 규칙 파일 자체가 로그인이나 DB 자동 마이그레이션을 구성하지는 않습니다.
