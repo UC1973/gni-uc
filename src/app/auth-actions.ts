@@ -11,12 +11,10 @@ async function siteOrigin() {
   return (await headers()).get("origin") ?? process.env.NEXT_PUBLIC_SITE_URL ?? "https://gni-uc.org";
 }
 
-/** ALLOWED_EMAIL_DOMAINS="uc.ac.kr,example.ac.kr" 처럼 지정하면 해당 도메인 메일만 가입 가능 */
-function emailDomainAllowed(email: string) {
-  const allowed = (process.env.ALLOWED_EMAIL_DOMAINS ?? "").split(",").map((d) => d.trim().toLowerCase()).filter(Boolean);
-  if (!allowed.length) return true;
-  const domain = email.split("@")[1] ?? "";
-  return allowed.some((d) => domain === d || domain.endsWith(`.${d}`));
+/** 소속 대학의 메일 도메인(universities.email_domains)과 일치하는지. DB 트리거도 같은 검사를 합니다. */
+function emailMatches(email: string, domains: string[]) {
+  const domain = (email.split("@")[1] ?? "").toLowerCase();
+  return domains.some((d) => domain === d.toLowerCase() || domain.endsWith(`.${d.toLowerCase()}`));
 }
 
 export async function login(_: FormState, form: FormData): Promise<FormState> {
@@ -61,9 +59,14 @@ export async function signup(_: FormState, form: FormData): Promise<FormState> {
 
   if (!name || !email || !university_id) return { error: "이름, 이메일, 소속 대학을 모두 입력해 주세요." };
   if (password.length < 8) return { error: "비밀번호는 8자 이상이어야 합니다." };
-  if (!emailDomainAllowed(email)) return { error: "참여대학 이메일 주소로만 가입할 수 있습니다." };
-
   const supabase = await createClient();
+  const { data: univ } = await supabase.from("universities").select("name,email_domains").eq("id", university_id).maybeSingle();
+  if (!univ) return { error: "소속 대학을 선택해 주세요." };
+  const domains = (univ.email_domains ?? []) as string[];
+  if (!emailMatches(email, domains)) {
+    return { error: `${univ.name} 이메일(@${domains.join(", @")})로만 가입할 수 있습니다.` };
+  }
+
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
@@ -74,6 +77,7 @@ export async function signup(_: FormState, form: FormData): Promise<FormState> {
   });
   if (error) {
     if (error.message.toLowerCase().includes("already")) return { error: "이미 가입된 이메일입니다." };
+    if (error.message.includes("Database error")) return { error: "소속 대학 이메일 주소로만 가입할 수 있습니다." };
     return { error: "가입 신청에 실패했습니다. 잠시 후 다시 시도해 주세요." };
   }
   // 이미 가입된 이메일이면 Supabase는 오류 대신 빈 identities를 돌려줍니다.

@@ -26,6 +26,7 @@
    - `supabase/migrations/20261121000100_harden.sql` — 권한 함수 비공개 스키마 이동
    - `supabase/migrations/20261121000200_grants.sql` — API 역할 권한
    - `supabase/migrations/20261121000300_email_confirmed.sql` — 승인 화면용 이메일 인증 여부
+   - `supabase/migrations/20261121000400_email_domains.sql` — 대학별 메일 도메인, 가입 시 도메인 검사
    - `supabase/seed.sql` — 11.20. 협의 자료 기준 초기 데이터
    - 현재 운영 DB: Supabase **5P3S** 조직의 **GNI-UC** 프로젝트 (`qbjevtjeczecysbtridj`, 도쿄) — 위 SQL 모두 적용 완료
 2. **Authentication → URL Configuration**
@@ -48,7 +49,6 @@
 | `NEXT_PUBLIC_SITE_URL` | 메일 속 링크 주소 |
 | `RESEND_API_KEY` / `RESEND_FROM` | 메일 발송 |
 | `ADMIN_NOTIFY_EMAILS` | 이메일 인증을 마친 새 가입 신청 알림 받을 사업단 메일 (쉼표 구분) |
-| `ALLOWED_EMAIL_DOMAINS` | (선택) 가입 허용 이메일 도메인, 쉼표 구분 |
 | `OPENAI_API_KEY` / `AI_MODEL` / `OPENAI_BASE_URL`(선택) | AI 기능 |
 
 ### 교직원 가입·승인 절차
@@ -56,7 +56,7 @@
 2. 신청자가 **이메일 인증 링크** 클릭 → 이때 사업단(`ADMIN_NOTIFY_EMAILS`)에 승인 요청 메일
 3. 사업단이 `/admin/users`에서 인증 여부를 보고 역할 지정 후 **승인** → 신청자에게 승인 메일
 4. 인증 메일을 못 받은 경우 로그인 화면의 **인증 메일 다시 보내기** 사용
-5. `ALLOWED_EMAIL_DOMAINS`를 지정하면 참여대학 메일 도메인만 가입 가능
+5. **소속 대학 메일로만 가입 가능** — uc.ac.kr · kimhae.ac.kr · dit.ac.kr · yc.ac.kr · klc.ac.kr (`universities.email_domains`, DB 트리거로도 강제)
 
 ### 첫 사업단 관리자 지정
 가입은 누구나 신청할 수 있지만 권한은 사업단이 승인해야 생깁니다. 첫 관리자는 가입 후 Supabase SQL Editor에서 직접 지정합니다.

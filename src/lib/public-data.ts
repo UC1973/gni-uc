@@ -5,11 +5,11 @@ import type { Course, Material, Notice, University } from "@/lib/types";
 /** Supabase 연결 전에도 화면을 볼 수 있도록 하는 기본값 (seed.sql과 같은 내용) */
 const FALLBACK = {
   universities: [
-    { id: "uc", name: "울산과학대학교", short_name: "울산과학대", is_hub: true, depts: ["기계공학부", "전기전자공학부", "조선해양시스템공학과"], quota: 10, sort: 1 },
-    { id: "gh", name: "김해대학교", short_name: "김해대", is_hub: false, depts: ["미래자동차과"], quota: 5, sort: 2 },
-    { id: "dy", name: "동의과학대학교", short_name: "동의과학대", is_hub: false, depts: ["전기자동차과"], quota: 5, sort: 3 },
-    { id: "ya", name: "연암공과대학교", short_name: "연암공대", is_hub: false, depts: ["전기전자공학과", "스마트전기전자공학과", "기계공학과", "스마트기계공학과", "스마트소프트웨어학과"], quota: 5, sort: 4 },
-    { id: "ke", name: "한국승강기대학교", short_name: "한국승강기대", is_hub: false, depts: ["승강기검사학과"], quota: 5, sort: 5 },
+    { id: "uc", name: "울산과학대학교", short_name: "울산과학대", is_hub: true, depts: ["기계공학부", "전기전자공학부", "조선해양시스템공학과"], quota: 10, sort: 1, email_domains: ["uc.ac.kr"] },
+    { id: "gh", name: "김해대학교", short_name: "김해대", is_hub: false, depts: ["미래자동차과"], quota: 5, sort: 2, email_domains: ["kimhae.ac.kr"] },
+    { id: "dy", name: "동의과학대학교", short_name: "동의과학대", is_hub: false, depts: ["전기자동차과"], quota: 5, sort: 3, email_domains: ["dit.ac.kr"] },
+    { id: "ya", name: "연암공과대학교", short_name: "연암공대", is_hub: false, depts: ["전기전자공학과", "스마트전기전자공학과", "기계공학과", "스마트기계공학과", "스마트소프트웨어학과"], quota: 5, sort: 4, email_domains: ["yc.ac.kr"] },
+    { id: "ke", name: "한국승강기대학교", short_name: "한국승강기대", is_hub: false, depts: ["승강기검사학과"], quota: 5, sort: 5, email_domains: ["klc.ac.kr"] },
   ] as University[],
   courses: [
     ["2-1", "자동제어실무", "MD", 3, 0, 3, "울산과학대", "draft", null],

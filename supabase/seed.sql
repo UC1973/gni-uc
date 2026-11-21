@@ -64,3 +64,10 @@ insert into public.site_settings (key, value) values
   ('semester_start', '2027-03-02'),
   ('reply_deadline', '2026-12-02')
 on conflict (key) do nothing;
+
+-- 대학별 교직원 메일 도메인 (가입 시 검사)
+update public.universities set email_domains = array['uc.ac.kr']     where id = 'uc';
+update public.universities set email_domains = array['kimhae.ac.kr'] where id = 'gh';
+update public.universities set email_domains = array['dit.ac.kr']    where id = 'dy';
+update public.universities set email_domains = array['yc.ac.kr']     where id = 'ya';
+update public.universities set email_domains = array['klc.ac.kr']    where id = 'ke';
