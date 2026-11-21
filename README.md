@@ -30,6 +30,7 @@
    - `supabase/migrations/20261121000500_split_policies.sql` — 정책 정리(성능 경고 해소)
    - `supabase/migrations/20261121000600_reply_files.sql` — 회신 파일(비공개 Storage 버킷 `replies`, 대학별 권한)
    - `supabase/migrations/20261121000700_audit_log.sql` — 변경 이력(감사 로그) 트리거, 수정·삭제 불가
+   - `supabase/migrations/20261121000800_file_scan.sql` — 회신 파일 보안 검사 결과(sha256, 차단 기록)
    - `supabase/seed.sql` — 11.20. 협의 자료 기준 초기 데이터
    - 현재 운영 DB: Supabase **5P3S** 조직의 **GNI-UC** 프로젝트 (`qbjevtjeczecysbtridj`, 도쿄) — 위 SQL 모두 적용 완료
 2. **Authentication → URL Configuration**
@@ -114,6 +115,18 @@ Supabase 환경변수가 없으면 홈페이지는 기본 데이터로 보이고
 - 성적평가 방식 확정 후 성적 입력 화면
 - 학생지원 기준 확정 후 홈페이지 혜택 갱신
 - 홍보자료 파일 업로드
+
+### 회신 파일 보안 검사
+업로드된 파일을 서버가 직접 읽어 확인합니다 (`src/lib/file-scan.ts`).
+확장자와 실제 형식 일치, 이름만 바꾼 실행파일, 매크로(VBA)·ActiveX 문서, PDF 자바스크립트·자동실행·첨부파일, 압축 속 실행파일·중첩 압축·압축 폭탄.
+차단된 파일은 저장소에서 즉시 지우고 기록만 남깁니다(참여대학 현황 › 차단된 업로드). `VIRUSTOTAL_API_KEY`를 넣으면 파일 내용 대신 해시값으로 백신 평판도 조회합니다.
+
+```bash
+npm run test:scan   # 15개 사례 시험
+```
+
+### 개인정보 처리방침
+`/privacy` — 홈페이지 하단과 가입 화면에서 연결. 가입 시 필수 동의를 받아 동의 시각·버전을 계정 정보에 저장합니다.
 
 ## 5. 보안 점검
 
