@@ -14,11 +14,13 @@ export default async function UnivsPage() {
   const [u, r, f] = await Promise.all([
     supabase.from("universities").select("*").order("sort"),
     supabase.from("replies").select("*"),
-    supabase.from("reply_files").select("id,university_id,kind,object_path,file_name,size_bytes,created_at").order("created_at"),
+    supabase.from("reply_files").select("id,university_id,kind,object_path,file_name,size_bytes,created_at,scan_status,scan_note").order("created_at"),
   ]);
   const univs = (u.data ?? []) as University[];
   const replies = (r.data ?? []) as Reply[];
-  const files = (f.data ?? []) as ReplyFile[];
+  const allFiles = (f.data ?? []) as (ReplyFile & { scan_status: string; scan_note: string | null })[];
+  const files = allFiles.filter((x) => x.scan_status === "clean");
+  const blocked = allFiles.filter((x) => x.scan_status === "blocked").slice(-10).reverse();
   const fileUnivs = univs.filter((x) => hub || x.id === me.university_id);
   const canWrite = (uid: string) => hub || (me.role === "univ_staff" && me.university_id === uid);
 
@@ -60,7 +62,7 @@ export default async function UnivsPage() {
         </table>
       </div>
       <div className="panel">
-        <h2>회신 파일 <span className="aside">PDF·HWP·엑셀·워드·ZIP·이미지 · 파일당 20MB · 올리면 제출 여부가 자동 체크됩니다</span></h2>
+        <h2>회신 파일 <span className="aside">PDF·HWP·엑셀·워드·ZIP·이미지 · 파일당 20MB · 올릴 때 보안 검사를 거치며, 통과하면 제출 여부가 자동 체크됩니다</span></h2>
         <div className="rf-grid">
           {fileUnivs.map((x) => (
             <div className="rf-card" key={x.id}>
@@ -71,6 +73,11 @@ export default async function UnivsPage() {
             </div>
           ))}
         </div>
+        {hub && blocked.length > 0 && (
+          <div className="alert warn" style={{ marginTop: 12 }}>🛡 <div><b>보안 검사에서 차단된 업로드 (최근 {blocked.length}건)</b>
+            {blocked.map((b) => <div key={b.id} className="small">{b.created_at.slice(0, 16).replace("T", " ")} · {univs.find((u) => u.id === b.university_id)?.short_name} · {b.file_name} — {b.scan_note}</div>)}
+          </div></div>
+        )}
         <p className="small muted" style={{ marginTop: 10 }}>{hub ? "사업단은 모든 대학의 파일을 내려받을 수 있습니다." : "소속 대학 파일만 보이며, 다른 대학 파일은 볼 수 없습니다."} 파일은 비공개로 저장되고 내려받기 링크는 60초 동안만 유효합니다.</p>
       </div>
     </>
