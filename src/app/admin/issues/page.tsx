@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui";
 import { PageHead, StatusSelect } from "@/components/admin";
 import { createIssue, updateIssue } from "../actions";
 import { AiSummary } from "./AiSummary";
+import { aiAllowed } from "@/lib/ai";
 import type { Issue, Meeting } from "@/lib/types";
 
 export default async function IssuesPage() {
@@ -20,7 +21,7 @@ export default async function IssuesPage() {
   return (
     <>
       <PageHead title="협의·학사운영" desc="참여대학 협의 안건을 결정 / 미결로 관리합니다." />
-      {hub && <AiSummary />}
+      {hub && aiAllowed(me.email) && <AiSummary />}
       {hub && (
         <form action={createIssue} className="panel">
           <h2>안건 등록</h2>

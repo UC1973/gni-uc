@@ -4,6 +4,7 @@ import { Tag } from "@/components/ui";
 import { PageHead } from "@/components/admin";
 import { createNotice, deleteNotice, toggleNotice, updateSetting } from "../actions";
 import { AiNotice } from "./AiNotice";
+import { aiAllowed } from "@/lib/ai";
 import type { Notice } from "@/lib/types";
 
 export default async function CmsPage() {
@@ -36,7 +37,7 @@ export default async function CmsPage() {
         <div className="inline"><input name="value" defaultValue={s.data?.value ?? ""} aria-label="안내 문구" style={{ flex: 1 }} /><button className="btn btn-o btn-s">저장</button></div>
         <p className="small muted" style={{ marginTop: 6 }}>비워 두면 안내 띠가 숨겨집니다.</p>
       </form>
-      <AiNotice />
+      {aiAllowed(me.email) && <AiNotice />}
       <form action={createNotice} className="panel">
         <h2>새 공지</h2>
         <div className="form-grid">

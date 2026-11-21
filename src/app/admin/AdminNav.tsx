@@ -9,10 +9,11 @@ const MENU: [string, string, string, string | null, boolean?][] = [
   ["/admin/issues", "🗂", "협의·학사운영", null],
   ["/admin/univs", "🏫", "참여대학 현황", null],
   ["/admin/students", "🎓", "학생관리", "학생"],
-  ["/admin/extra", "🧾", "비교과", null],
+  ["/admin/extra", "🎟", "비교과", null],
   ["/admin/kpi", "🎯", "성과관리", "사업"],
   ["/admin/cms", "📰", "콘텐츠 관리", null],
   ["/admin/users", "👥", "사용자·권한", null, true],
+  ["/admin/audit", "🧾", "변경 이력", null, true],
 ];
 
 export function AdminNav({ hub }: { hub: boolean }) {

@@ -29,6 +29,7 @@
    - `supabase/migrations/20261121000400_email_domains.sql` — 대학별 메일 도메인, 가입 시 도메인 검사
    - `supabase/migrations/20261121000500_split_policies.sql` — 정책 정리(성능 경고 해소)
    - `supabase/migrations/20261121000600_reply_files.sql` — 회신 파일(비공개 Storage 버킷 `replies`, 대학별 권한)
+   - `supabase/migrations/20261121000700_audit_log.sql` — 변경 이력(감사 로그) 트리거, 수정·삭제 불가
    - `supabase/seed.sql` — 11.20. 협의 자료 기준 초기 데이터
    - 현재 운영 DB: Supabase **5P3S** 조직의 **GNI-UC** 프로젝트 (`qbjevtjeczecysbtridj`, 도쿄) — 위 SQL 모두 적용 완료
 2. **Authentication → URL Configuration**
@@ -119,6 +120,6 @@ Supabase 환경변수가 없으면 홈페이지는 기본 데이터로 보이고
 ```bash
 supabase db query --remote=qbjevtjeczecysbtridj --yes -f supabase/tests/rls_check.sql
 ```
-역할별(타 대학 담당자·교수·승인 대기·비로그인) 권한 19개 항목을 시험하고, 마지막에 예외로 전부 되돌립니다. 결과는 `RLS_RESULT | ok … ` 형태로 출력되며 `FAIL`이 없어야 합니다.
+역할별(타 대학 담당자·교수·승인 대기·비로그인) 권한과 변경 이력 위변조 방지 등 25개 항목을 시험하고, 마지막에 예외로 전부 되돌립니다. 결과는 `RLS_RESULT | ok … ` 형태로 출력되며 `FAIL`이 없어야 합니다.
 
-적용된 보호: RLS(대학별 데이터 분리), 소속 대학 메일 도메인 가입 제한(DB 트리거), 사업단 승인제, 비밀번호 8자+영문·숫자, 유출 비밀번호 차단, 비밀번호 변경 시 재인증, 12시간 미사용 로그아웃, 비공개 파일 저장소 + 60초 서명 URL, CSP·X-Frame-Options 등 보안 헤더, 관리 화면 noindex·no-store, DB SSL 강제, 매일 백업.
+적용된 보호: RLS(대학별 데이터 분리), 소속 대학 메일 도메인 가입 제한(DB 트리거), 사업단 승인제, 비밀번호 8자+영문·숫자, 유출 비밀번호 차단, 비밀번호 변경 시 재인증, 12시간 미사용 로그아웃, 비공개 파일 저장소 + 60초 서명 URL, CSP·X-Frame-Options 등 보안 헤더, 관리 화면 noindex·no-store, DB SSL 강제, 매일 백업, 변경 이력(14개 테이블, `/admin/audit`, CSV 내려받기).

@@ -1,13 +1,13 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { aiConfigured, generateText } from "@/lib/ai";
+import { aiAllowed, aiConfigured, generateText } from "@/lib/ai";
 
 const CONTEXT = "너는 울산과학대학교 5극3특공유대학사업단(GNI-UC)의 행정 보조다. GNI는 경상국립대학교가 주관하는 공유대학이고, UC는 미래모빌리티 트랙 산업AX전공(ND 8학점·MD 12학점, 5개 전문대학)을 운영한다. 한국어 공문체로 간결하게 쓰고, 확정되지 않은 내용은 '협의 중'으로 표현한다. 사실을 지어내지 않는다. 화면에 그대로 표시되므로 마크다운(#, **, 표, |)을 쓰지 말고, 소제목은 【 】로, 항목은 1. 2. 또는 - 로 쓴 일반 텍스트로 답한다.";
 
 export async function POST(req: NextRequest) {
   const me = await getProfile();
-  if (!me || me.status !== "approved" || me.role !== "hub_admin") return NextResponse.json({ error: "권한이 없습니다." }, { status: 403 });
+  if (!me || me.status !== "approved" || me.role !== "hub_admin" || !aiAllowed(me.email)) return NextResponse.json({ error: "권한이 없습니다." }, { status: 403 });
   if (!aiConfigured()) return NextResponse.json({ error: "AI 키(OPENAI_API_KEY)가 설정되지 않았습니다." }, { status: 503 });
 
   const body = (await req.json().catch(() => ({}))) as { task?: string; input?: string };

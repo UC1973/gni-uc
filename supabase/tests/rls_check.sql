@@ -73,6 +73,18 @@ begin
     r := r || ' | FAIL staff recorded uc file';
   exception when others then r := r || ' | ok staff cannot record uc file'; end;
 
+  -- 변경 이력: 담당자는 볼 수도, 지울 수도 없음
+  select count(*) into n from public.audit_log;
+  r := r || case when n = 0 then ' | ok staff cannot read audit log' else ' | FAIL staff reads audit log' end;
+  begin
+    delete from public.audit_log;
+    r := r || ' | FAIL staff deleted audit log';
+  exception when others then r := r || ' | ok staff cannot delete audit log'; end;
+  begin
+    insert into public.audit_log (table_name, action) values ('x', 'insert');
+    r := r || ' | FAIL staff forged audit log';
+  exception when others then r := r || ' | ok staff cannot forge audit log'; end;
+
   -- ---------- 동의과학대 교수 ----------
   execute 'reset role';
   perform set_config('request.jwt.claims', json_build_object('sub', prof, 'role', 'authenticated')::text, true);
@@ -106,6 +118,20 @@ begin
   select count(*) into n from storage.objects where bucket_id = 'replies';
   r := r || case when n = 0 then ' | ok anon cannot read files' else ' | FAIL anon reads files' end;
 
+  execute 'reset role';
+  -- 위 작업이 이력에 남았는지 (담당자 본인 회신 수정)
+  select count(*) into n from public.audit_log where actor_id = staff and table_name = 'replies' and changes ? 'grade_period';
+  r := r || case when n = 1 then ' | ok change recorded with actor' else ' | FAIL change not recorded='||n end;
+  -- 사업단도 이력을 지울 수 없음
+  perform set_config('request.jwt.claims', json_build_object('sub', (select id from public.profiles where role = 'hub_admin' and status = 'approved' limit 1), 'role', 'authenticated')::text, true);
+  execute 'set local role authenticated';
+  select count(*) into n from public.audit_log;
+  r := r || case when n > 0 then ' | ok hub reads audit log' else ' | FAIL hub cannot read audit log' end;
+  begin
+    delete from public.audit_log;
+    get diagnostics n = row_count;
+    r := r || ' | FAIL hub deleted audit rows='||n;
+  exception when others then r := r || ' | ok hub cannot delete audit log'; end;
   execute 'reset role';
   raise exception 'RLS_RESULT%', r;
 end $$;
