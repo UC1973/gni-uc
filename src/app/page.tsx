@@ -75,19 +75,30 @@ export default async function Home() {
           <section className="sec" id="about">
             <div className="eyebrow">About</div>
             <h2>GNI-UC는 무엇인가요?</h2>
-            <p className="lead"><b>GNI</b>는 경상국립대학교가 주관하는 5극3특 공유대학의 브랜드이고, <b>UC</b>는 울산과학대학교입니다. 울산과학대학교가 중심이 되어 전문대학 트랙인 <b>미래모빌리티 트랙 · 산업AX전공</b>을 운영합니다.</p>
-            <div className="tree">
-              <div className="node"><span className="lv">사업</span><b>5극3특 공유대학</b></div>
-              <div className="node indent1"><span className="lv">공유대학</span><div><b>GNI 공유대학</b> <small>· 주관 경상국립대학교</small></div></div>
-              <div className="indent2 sib">
-                <div className="node"><span><b>일반대학 모델</b> <small>4개</small></span></div>
-                <div className="node" style={{ opacity: 1 }}><span><b>전문대학 트랙</b> <small>2개</small></span></div>
-              </div>
-              <div className="indent3 sib">
-                <div className="node me" style={{ opacity: 1 }}><div><b>GNI-UC · 울산과학대학교</b><br /><small>미래모빌리티 트랙 → <b style={{ color: "var(--blue)" }}>산업AX전공</b></small></div></div>
-                <div className="node"><div><b>마산대학교 트랙</b></div></div>
-              </div>
+            <div className="about-intro">
+              <p className="lead"><b>GNI</b>는 경상국립대학교가 주관하는 5극3특 공유대학의 브랜드이고, <b>UC</b>는 울산과학대학교입니다.</p>
+              <p className="lead">울산과학대학교가 중심이 되어 전문대학 트랙인 <b>미래모빌리티 트랙 · 산업AX전공</b>을 운영합니다.</p>
             </div>
+            <ul className="tree" role="list" aria-label="공유대학 운영 구조">
+              <li>
+                <div className="node"><span className="lv">사업</span><b>5극3특 공유대학</b></div>
+                <ul className="tree-children" role="list">
+                  <li>
+                    <div className="node"><span className="lv">공유대학</span><div><b>GNI 공유대학</b> <small>· 주관 경상국립대학교</small></div></div>
+                    <ul className="tree-children tree-models" role="list">
+                      <li><div className="node"><span><b>일반대학 모델</b> <small>4개</small></span></div></li>
+                      <li>
+                        <div className="node"><span><b>전문대학 트랙</b> <small>2개</small></span></div>
+                        <ul className="tree-children tree-universities" role="list">
+                          <li className="node me"><div><b>GNI-UC · 울산과학대학교</b><br /><small>미래모빌리티 트랙 → <b>산업AX전공</b></small></div></li>
+                          <li className="node"><b>마산대학교 트랙</b></li>
+                        </ul>
+                      </li>
+                    </ul>
+                  </li>
+                </ul>
+              </li>
+            </ul>
             <div className="grid3" style={{ marginTop: 28 }}>
               <div className="card"><div className="ico">🏭</div><h3>산업 수요</h3><p>동남권 제조업의 AX 전환과 5극3특 성장엔진 육성에 필요한 현장 인재를 키웁니다.</p></div>
               <div className="card"><div className="ico">🔗</div><h3>교육자원 공유</h3><p>대학마다 흩어진 교수진·교과목·실습장비를 하나의 전공으로 연결합니다.</p></div>
