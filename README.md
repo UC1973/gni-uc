@@ -2,6 +2,9 @@
 
 울산과학대학교 5극3특공유대학사업단(GNI-UC) — 미래모빌리티 트랙 산업AX전공
 
+- 운영 주소: **https://gni-uc.org** (Vercel, DNS도 Vercel에서 관리)
+- 메일 발신: `no-reply@gni-uc.org` (Resend, 인증 메일은 Supabase → Resend SMTP)
+
 - **학생용 홈페이지** (`/`) — 로그인 없이 바로 열림. 사업 소개, 이수 로드맵, 학생 혜택, 모집 안내, 홍보자료
 - **교직원 관리 시스템** (`/admin`) — 5개 참여대학 교수·직원 전용. 교육과정 확정 관리, 협의 안건, 대학별 회신, 학생·비교과·성과·콘텐츠·권한
 
@@ -22,14 +25,15 @@
    - `supabase/migrations/20261121000000_init.sql` — 테이블·권한(RLS)
    - `supabase/migrations/20261121000100_harden.sql` — 권한 함수 비공개 스키마 이동
    - `supabase/migrations/20261121000200_grants.sql` — API 역할 권한
+   - `supabase/migrations/20261121000300_email_confirmed.sql` — 승인 화면용 이메일 인증 여부
    - `supabase/seed.sql` — 11.20. 협의 자료 기준 초기 데이터
    - 현재 운영 DB: Supabase **5P3S** 조직의 **GNI-UC** 프로젝트 (`qbjevtjeczecysbtridj`, 도쿄) — 위 SQL 모두 적용 완료
 2. **Authentication → URL Configuration**
-   - Site URL: 배포 주소 (예: `https://gni-uc.vercel.app`)
-   - Redirect URLs: `https://gni-uc.vercel.app/auth/callback`, `http://localhost:3000/auth/callback`
+   - Site URL: `https://gni-uc.org`
+   - Redirect URLs: `https://gni-uc.org/auth/callback`, `https://www.gni-uc.org/auth/callback`, `https://gni-uc.vercel.app/auth/callback`, `http://localhost:3000/auth/callback`
 3. **Authentication → Emails → SMTP Settings** (인증 메일을 Resend로 보내기)
    - Host `smtp.resend.com` · Port `465` · User `resend` · Password = Resend API 키
-   - Sender: Resend에서 인증한 도메인의 주소
+   - Sender: `no-reply@gni-uc.org` / 이름 `GNI-UC 산업AX전공`
 
 ### Resend
 1. 발신 도메인을 추가하고 DNS 인증을 완료합니다. (인증 전에는 본인 이메일로만 발송됩니다.)
@@ -43,8 +47,16 @@
 | `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Supabase API 설정 |
 | `NEXT_PUBLIC_SITE_URL` | 메일 속 링크 주소 |
 | `RESEND_API_KEY` / `RESEND_FROM` | 메일 발송 |
-| `ADMIN_NOTIFY_EMAILS` | 새 가입 신청 알림 받을 사업단 메일 (쉼표 구분) |
+| `ADMIN_NOTIFY_EMAILS` | 이메일 인증을 마친 새 가입 신청 알림 받을 사업단 메일 (쉼표 구분) |
+| `ALLOWED_EMAIL_DOMAINS` | (선택) 가입 허용 이메일 도메인, 쉼표 구분 |
 | `OPENAI_API_KEY` / `AI_MODEL` / `OPENAI_BASE_URL`(선택) | AI 기능 |
+
+### 교직원 가입·승인 절차
+1. `/signup`에서 가입 신청 → 신청자에게 "접수" 메일 (Resend)
+2. 신청자가 **이메일 인증 링크** 클릭 → 이때 사업단(`ADMIN_NOTIFY_EMAILS`)에 승인 요청 메일
+3. 사업단이 `/admin/users`에서 인증 여부를 보고 역할 지정 후 **승인** → 신청자에게 승인 메일
+4. 인증 메일을 못 받은 경우 로그인 화면의 **인증 메일 다시 보내기** 사용
+5. `ALLOWED_EMAIL_DOMAINS`를 지정하면 참여대학 메일 도메인만 가입 가능
 
 ### 첫 사업단 관리자 지정
 가입은 누구나 신청할 수 있지만 권한은 사업단이 승인해야 생깁니다. 첫 관리자는 가입 후 Supabase SQL Editor에서 직접 지정합니다.

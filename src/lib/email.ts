@@ -1,8 +1,8 @@
 import "server-only";
 import { Resend } from "resend";
 
-const FROM = process.env.RESEND_FROM ?? "GNI-UC <onboarding@resend.dev>";
-const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+const FROM = process.env.RESEND_FROM ?? "GNI-UC 산업AX전공 <no-reply@gni-uc.org>";
+const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://gni-uc.org";
 
 function client() {
   const key = process.env.RESEND_API_KEY;
@@ -33,14 +33,14 @@ async function send(to: string | string[], subject: string, html: string) {
 export async function sendSignupReceived(to: string, name: string) {
   await send(to, "[GNI-UC] 교직원 가입 신청이 접수되었습니다",
     layout(`${esc(name)}님, 가입 신청이 접수되었습니다`,
-      `<p>UC 사업단이 소속과 역할을 확인한 뒤 승인하면 다시 알려드립니다.</p>`));
+      `<p>메일함에 도착한 <b>이메일 인증 메일</b>의 링크를 눌러 주세요. 인증이 끝나면 UC 사업단이 소속과 역할을 확인한 뒤 승인하고, 다시 알려드립니다.</p>`));
 }
 
 export async function notifyAdminsOfSignup(name: string, email: string, univ: string, role: string) {
   const admins = (process.env.ADMIN_NOTIFY_EMAILS ?? "").split(",").map((s) => s.trim()).filter(Boolean);
   if (!admins.length) return;
   await send(admins, `[GNI-UC] 새 가입 신청: ${name.slice(0, 40)} (${univ})`,
-    layout("새 교직원 가입 신청",
+    layout("새 교직원 가입 신청 (이메일 인증 완료)",
       `<p><b>${esc(name)}</b> · ${esc(email)}<br>${esc(univ)} · ${esc(role)}</p>
        <p><a href="${SITE}/admin/users" style="display:inline-block;padding:10px 18px;background:#2F6BFF;color:#fff;border-radius:8px;text-decoration:none">승인하러 가기</a></p>`));
 }

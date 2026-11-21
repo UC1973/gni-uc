@@ -8,7 +8,6 @@ import type { University } from "@/lib/types";
 export function SignupForm({ universities }: { universities: University[] }) {
   const [state, action, pending] = useActionState(signup, undefined);
   const [uid, setUid] = useState(universities[0]?.id ?? "");
-  const univName = universities.find((u) => u.id === uid)?.name ?? uid;
 
   if (state?.ok) return <div style={{ maxWidth: 390 }}><h1 style={{ fontSize: 24 }}>신청 완료</h1><div className="msg ok">{state.ok}</div><Link className="btn btn-o" href="/">홈으로</Link></div>;
 
@@ -17,7 +16,6 @@ export function SignupForm({ universities }: { universities: University[] }) {
       <h1 style={{ fontSize: 26 }}>교직원 가입 신청</h1>
       <p className="muted small">가입 후 이메일 인증 → UC 사업단 승인 순서로 진행됩니다.</p>
       {state?.error && <div className="msg err" role="alert">{state.error}</div>}
-      <input type="hidden" name="university_name" value={univName} />
       <div className="fld"><label htmlFor="name">이름</label><input id="name" name="name" required maxLength={40} autoComplete="name" /></div>
       <div className="fld"><label htmlFor="university_id">소속 대학</label>
         <select id="university_id" name="university_id" value={uid} onChange={(e) => setUid(e.target.value)}>

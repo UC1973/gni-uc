@@ -21,21 +21,23 @@ export default async function UsersPage() {
 
   return (
     <>
-      <PageHead title="사용자·권한" desc="가입 신청을 승인하면 Resend로 승인 메일이 발송됩니다." />
+      <PageHead title="사용자·권한" desc="승인 절차: 가입 신청 → 이메일 인증 → 사업단 승인(역할 지정) → 승인 메일 발송" />
+      {users.some((x) => x.status === "pending" && !x.email_confirmed) && <div className="alert warn">⚠️ <div>이메일 인증 전인 신청자가 있습니다. 본인 확인을 위해 인증을 마친 뒤 승인하는 것을 권장합니다.</div></div>}
       <div className="panel" style={{ overflowX: "auto" }}>
         <table>
-          <thead><tr><th>이름</th><th>이메일</th><th>소속</th><th>상태</th><th>역할 지정 · 처리</th></tr></thead>
+          <thead><tr><th>이름</th><th>이메일</th><th>소속</th><th>이메일 인증</th><th>상태</th><th>역할 지정 · 처리</th></tr></thead>
           <tbody>
             {users.map((x) => (
               <tr key={x.id}>
                 <td><b>{x.name}</b></td><td className="small">{x.email}</td><td>{uname(x.university_id)}</td>
+                <td>{x.email_confirmed ? <Tag tone="ok">완료</Tag> : <Tag tone="wip">미인증</Tag>}</td>
                 <td><Tag tone={ST_TONE[x.status]}>{ST_LABEL[x.status]}</Tag></td>
                 <td>
                   {x.id === me.id ? <span className="small muted">본인 ({ROLE_LABEL[x.role]})</span> : (
                     <form action={reviewUser} className="inline">
                       <input type="hidden" name="id" value={x.id} />
                       <select name="role" defaultValue={x.role} aria-label="역할">{(Object.keys(ROLE_LABEL) as Role[]).map((r) => <option key={r} value={r}>{ROLE_LABEL[r]}</option>)}</select>
-                      <button name="decision" value="approve" className="btn btn-p btn-s">{x.status === "approved" ? "역할 변경" : "승인"}</button>
+                      <button name="decision" value="approve" className={`btn btn-s ${x.email_confirmed || x.status === "approved" ? "btn-p" : "btn-o"}`} title={x.email_confirmed ? undefined : "이메일 인증 전입니다"}>{x.status === "approved" ? "역할 변경" : "승인"}</button>
                       {x.status !== "rejected" && <button name="decision" value="reject" className="btn btn-o btn-s">{x.status === "approved" ? "권한 회수" : "반려"}</button>}
                     </form>
                   )}

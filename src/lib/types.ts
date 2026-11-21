@@ -3,7 +3,7 @@ export type Role = "hub_admin" | "univ_staff" | "professor";
 export type UserStatus = "pending" | "approved" | "rejected";
 
 export type University = { id: string; name: string; short_name: string; is_hub: boolean; depts: string[]; quota: number; sort: number };
-export type Profile = { id: string; email: string; name: string; university_id: string | null; role: Role; status: UserStatus; created_at: string };
+export type Profile = { id: string; email: string; name: string; university_id: string | null; role: Role; status: UserStatus; email_confirmed: boolean; created_at: string };
 export type Course = { id: number; term: string; name: string; degree: "ND" | "MD"; theory: number; practice: number; credits: number; host: string; course_code: string | null; status: ItemStatus; note: string | null; sort: number };
 export type Issue = { id: number; category: string; title: string; detail: string | null; status: ItemStatus; decision: string | null; created_at: string };
 export type Meeting = { id: number; held_on: string; title: string; attendees: string | null; summary: string | null; material_url: string | null };
