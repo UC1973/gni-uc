@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { getPublicData } from "@/lib/public-data";
 import { Badge, DegBadge, Logo, Tag } from "@/components/ui";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -215,7 +216,19 @@ export default async function Home() {
         </section>
       </div>
 
-      <footer className="pf"><div className="wrap">
+      <footer className="pf">
+        <div className="wrap partners">
+          <span className="partners-label">참여대학</span>
+          <ul>
+            {universities.map((u) => (
+              <li key={u.id}>
+                <Image src={`/logos/${u.id}.png`} alt={`${u.name} 로고`} width={56} height={56} />
+                <span>{u.name}{u.is_hub && <small>중심대학</small>}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div className="wrap">
         <div><b>울산과학대학교 5극3특공유대학사업단 (GNI-UC)</b><br />GNI 공유대학 · 주관 경상국립대학교</div>
         <div><Link href="/login" style={{ textDecoration: "underline" }}>교직원 로그인</Link> · <Link href="/signup" style={{ textDecoration: "underline" }}>교직원 가입 신청</Link></div>
       </div></footer>

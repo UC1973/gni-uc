@@ -251,3 +251,15 @@ textarea{min-height:110px;resize:vertical;font:inherit;padding:10px;border:1px s
 .ai-out{white-space:pre-wrap;font-size:14px;margin-top:12px;padding:12px;border-radius:8px;background:var(--bg)}
 .muted{color:var(--muted)}
 .small{font-size:13px}
+
+/* footer: 참여대학 로고 */
+footer.pf{padding-top:36px}
+footer.pf .partners{display:flex;align-items:center;gap:20px;flex-wrap:wrap;justify-content:flex-start;padding-bottom:28px;margin-bottom:28px;border-bottom:1px solid #ffffff1A}
+.partners-label{font-size:12px;font-weight:700;letter-spacing:.08em;color:#8F9BC4;flex:none}
+.partners ul{list-style:none;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;flex:1;min-width:0}
+.partners li{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:12px;background:#ffffff0D;border:1px solid #ffffff14}
+.partners img{width:44px;height:44px;border-radius:10px;background:#fff;padding:4px;object-fit:contain;flex:none}
+.partners li span{font-size:13px;font-weight:600;color:#E3E8F7;line-height:1.3}
+.partners li small{display:block;font-size:11px;font-weight:600;color:#7FE3F0}
+@media(max-width:1000px){.partners ul{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:600px){.partners ul{grid-template-columns:repeat(2,minmax(0,1fr))}.partners-label{width:100%}}
