@@ -67,7 +67,7 @@ function scanPdf(buf: Uint8Array): string | null {
 function scanOle(buf: Uint8Array, ext: string): string | null {
   // OLE 문서 안의 스트림 이름은 UTF-16LE로 저장됨
   const u = Buffer.from(buf).toString("utf16le");
-  if (/_VBA_PROJECT|VBA\b|Macros/.test(u)) return "매크로(VBA)가 들어 있는 문서입니다. 매크로를 제거해 올려 주세요.";
+  if (/_VBA_PROJECT/.test(u))   // 매크로 저장 영역 이름 (본문에 "VBA" 글자가 있어도 오탐하지 않도록 좁게) return "매크로(VBA)가 들어 있는 문서입니다. 매크로를 제거해 올려 주세요.";
   if (ext === "hwp" && /DefaultJScript|JScriptVersion/.test(u)) {
     // 한글 문서는 기본 스크립트 스트림이 비어 있어도 존재할 수 있어, 실제 코드 흔적이 있을 때만 차단
     if (/eval\(|ActiveXObject|WScript|Shell\.Application|XMLHTTP/i.test(ascii(buf) + u)) return "스크립트가 포함된 한글 문서입니다.";
