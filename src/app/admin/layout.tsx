@@ -6,16 +6,11 @@ import { Icon } from "@/components/icons";
 import { MobileNav, PageTitle, SideNav } from "./AdminNav";
 import { logout } from "@/app/auth-actions";
 import { ROLE_LABEL } from "@/lib/types";
-import { createClient } from "@/lib/supabase/server";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const profile = await requireStaff();
   const hub = profile.role === "hub_admin";
-  const supabase = await createClient();
-  const { data: univ } = profile.university_id
-    ? await supabase.from("universities").select("name").eq("id", profile.university_id).single()
-    : { data: null };
-  const univName = univ?.name ?? "소속 미지정";
+  const univName = profile.university?.name ?? "소속 미지정";
   const role = ROLE_LABEL[profile.role];
   const scope = hub ? "5개 참여대학 전체 데이터를 관리합니다." : profile.role === "professor" ? "담당 교과목·수강생 위주로 표시됩니다." : `${univName} 데이터만 수정할 수 있습니다.`;
 
