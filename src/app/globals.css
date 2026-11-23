@@ -569,3 +569,41 @@ details.add[open]{border-style:solid;padding-bottom:16px}
   .panel h2{font-size:15.5px}
   .alert{border-radius:14px;font-size:13.5px}
 }
+
+/* GNI 일정 달력 */
+.cal-nav{display:flex;gap:4px}
+.cal-nav a{min-width:34px;height:30px;padding:0 10px;display:inline-grid;place-items:center;border:1px solid var(--line);border-radius:9px;font-size:13px;font-weight:650;color:var(--text);background:var(--surface)}
+.cal-nav a:hover{border-color:var(--blue);color:var(--blue)}
+.cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--line);gap:1px}
+.cal-w{background:var(--bg);text-align:center;font-size:12px;font-weight:700;color:var(--muted);padding:7px 0}
+.cal-w.sun,.cal-d .n.sun{color:var(--bad)}.cal-w.sat,.cal-d .n.sat{color:var(--blue)}
+.cal-d{background:var(--surface);min-height:92px;padding:5px;display:flex;flex-direction:column;gap:3px;min-width:0}
+.cal-d.empty-d{background:var(--bg)}
+.cal-d .n{font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums;width:24px;height:24px;display:grid;place-items:center;border-radius:99px}
+.cal-d.today .n{background:var(--blue);color:#fff}
+.cal-e{display:block;font-size:11.5px;line-height:1.35;padding:2px 6px;border-radius:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}
+.cal-e.plan{background:var(--info-bg);color:var(--blue)}
+.cal-e.due{background:var(--warn-bg);color:var(--warn)}
+.cal-more{font-size:11px;color:var(--muted);padding-left:4px}
+.cal-legend{display:flex;gap:14px;margin-top:10px}
+.cal-legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.cal-legend i.plan{background:var(--blue)}.cal-legend i.due{background:var(--warn)}
+@media(max-width:640px){
+  .cal-d{min-height:64px;padding:3px;gap:2px}
+  .cal-e{font-size:0;height:6px;padding:0;border-radius:3px}
+  .cal-e.plan{background:var(--blue)}.cal-e.due{background:var(--warn)}
+  .cal-more{font-size:10px;padding:0}
+}
+
+/* GNI 의견수렴 */
+.sv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.sv-card{border:1px solid var(--line);border-radius:14px;padding:12px 14px;background:var(--bg);min-width:0}
+.sv-card.own{border-color:var(--blue);background:var(--surface)}
+.sv-h{display:flex;gap:6px;align-items:center;margin-bottom:8px;flex-wrap:wrap}
+.sv-h b{font-size:14.5px;margin-right:auto}
+.sv-body{margin:0;padding-left:18px;font-size:13.5px;line-height:1.55;overflow-wrap:anywhere}
+.sv-f{margin-top:8px;font-size:11.5px;color:var(--muted)}
+.sv-form{margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
+.sv-form label{display:grid;gap:6px}
+.sv-form textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font:inherit;font-size:14px;background:var(--bg);color:var(--text);min-height:96px}
+.sv-form textarea:focus{outline:2px solid color-mix(in srgb,var(--blue) 40%,transparent);border-color:var(--blue);background:var(--surface)}

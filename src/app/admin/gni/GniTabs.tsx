@@ -8,6 +8,7 @@ const TABS: [string, string, IconName][] = [
   ["/admin/gni", "현황", "compass"],
   ["/admin/gni/docs", "공문·메일", "mail"],
   ["/admin/gni/schedule", "일정", "calendar"],
+  ["/admin/gni/surveys", "의견수렴", "chat"],
   ["/admin/gni/decisions", "결정 사항", "scale"],
   ["/admin/gni/checklist", "체크리스트", "check"],
 ];

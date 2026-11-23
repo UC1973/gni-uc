@@ -41,6 +41,25 @@ export type Milestone = { id: number; starts_on: string; ends_on: string | null;
 export type Decision = { id: number; area: Area; title: string; options: string[]; basis: string | null; status: "draft" | "wip" | "ok"; decision: string | null; doc_id: number | null; sort: number };
 export type CheckItem = { id: number; grp: string; task: string; owner: string | null; due_on: string | null; doc_id: number | null; done: boolean; done_at: string | null; sort: number };
 
+export type Survey = { id: number; area: Area; title: string; question: string | null; due_on: string | null; status: "open" | "closed"; doc_id: number | null; decision_id: number | null; sort: number };
+export type SurveyResponse = { survey_id: number; university_id: string; body: string; updated_at: string; author_name: string | null };
+
+/** 의견수렴 주제와 대학별 의견 (조회는 승인된 교직원 전체, 수정은 RLS로 소속 대학만) */
+export async function getSurveys() {
+  const supabase = await createClient();
+  const [s, r] = await Promise.all([
+    supabase.from("gni_surveys").select("id,area,title,question,due_on,status,doc_id,decision_id,sort").order("status", { ascending: false }).order("sort").order("id", { ascending: false }),
+    supabase.from("gni_survey_responses").select("survey_id,university_id,body,updated_at,author_name"),
+  ]);
+  const error = s.error ?? r.error;
+  if (error) console.error("[gni] 의견수렴 조회 실패", error);
+  return {
+    surveys: (s.data ?? []) as Survey[],
+    responses: (r.data ?? []) as SurveyResponse[],
+    error: error ? "의견수렴 자료를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요." : null,
+  };
+}
+
 export type GniData = {
   docs: GniDoc[];
   notes: Map<number, string>;

@@ -215,3 +215,58 @@ export async function deleteCheck(form: FormData) {
   fail("할 일 삭제", error);
   done();
 }
+
+/* ---------- 의견수렴 ---------- */
+export async function saveSurvey(form: FormData) {
+  const supabase = await hub();
+  const rowId = id(form.get("id"));
+  const title = str(form.get("title"));
+  if (!title) throw new Error("의견수렴 주제를 입력해 주세요.");
+  const row = {
+    area: oneOf(AREAS, form.get("area"), "교육과정"),
+    title,
+    question: opt(form.get("question")),
+    due_on: date(form.get("due_on")),
+    status: oneOf(["open", "closed"] as const, form.get("status"), "open"),
+    doc_id: id(form.get("doc_id")),
+    decision_id: id(form.get("decision_id")),
+  };
+  const { error } = rowId
+    ? await supabase.from("gni_surveys").update(row).eq("id", rowId)
+    : await supabase.from("gni_surveys").insert({ ...row, sort: 1000 });
+  fail("의견수렴 저장", error);
+  done();
+}
+
+export async function setSurveyStatus(form: FormData) {
+  const supabase = await hub();
+  const rowId = id(form.get("id"));
+  if (!rowId) return;
+  const { error } = await supabase.from("gni_surveys").update({ status: oneOf(["open", "closed"] as const, form.get("status"), "open") }).eq("id", rowId);
+  fail("의견수렴 상태 변경", error);
+  done();
+}
+
+export async function deleteSurvey(form: FormData) {
+  const supabase = await hub();
+  const rowId = id(form.get("id"));
+  if (!rowId) return;
+  const { error } = await supabase.from("gni_surveys").delete().eq("id", rowId);
+  fail("의견수렴 삭제", error);
+  done();
+}
+
+/** 소속 대학 의견 저장 — 대학은 로그인한 계정의 소속으로만 정함 (RLS로도 강제) */
+export async function saveResponse(form: FormData) {
+  const me = await requireStaff();
+  if (me.role === "professor" || !me.university_id) throw new Error("소속 대학 담당자만 의견을 입력할 수 있습니다.");
+  const surveyId = id(form.get("survey_id"));
+  if (!surveyId) return;
+  const body = str(form.get("body")).slice(0, 5000);
+  const supabase = await createClient();
+  const { error } = body
+    ? await supabase.from("gni_survey_responses").upsert({ survey_id: surveyId, university_id: me.university_id, body }, { onConflict: "survey_id,university_id" })
+    : await supabase.from("gni_survey_responses").delete().eq("survey_id", surveyId).eq("university_id", me.university_id);
+  fail("의견 저장", error);
+  done();
+}

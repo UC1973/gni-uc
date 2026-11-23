@@ -8,6 +8,8 @@ export const TABLE_LABEL: Record<string, string> = {
   profiles: "사용자", courses: "교과목", issues: "협의 안건", meetings: "회의", replies: "대학 회신", reply_files: "회신 파일",
   students: "학생", kpis: "성과지표", notices: "공지", materials: "홍보자료", site_settings: "사이트 설정",
   universities: "참여대학", extra_programs: "비교과", extra_demand: "비교과 수요", audit_log: "변경 이력",
+  gni_docs: "GNI 공문·메일", gni_doc_notes: "GNI 사업단 메모", gni_schedule: "GNI 일정", gni_decisions: "GNI 결정 사항", gni_checklist: "GNI 체크리스트",
+  gni_surveys: "GNI 의견수렴", gni_survey_responses: "GNI 대학 의견",
 };
 export const ACTION_LABEL = { insert: "추가", update: "수정", delete: "삭제" } as const;
 
@@ -20,10 +22,10 @@ const FIELD_LABEL: Record<string, string> = {
   theory: "이론", practice: "실습", credits: "학점", sort: "순서", quota: "모집인원", depts: "학과", email_domains: "메일 도메인",
   object_path: "저장 경로", mime_type: "형식", uploaded_by: "올린 사람", author_id: "작성자", program_id: "프로그램",
   held_on: "일자", attendees: "참석", summary: "요약", material_url: "자료", description: "설명", unit: "단위", caption: "설명", url: "주소",
-  is_hub: "중심대학", short_name: "약칭", before: "기준 일시(이전 기록)",
+  is_hub: "중심대학", short_name: "약칭", question: "질문", due_on: "마감일", area: "분야", updated_by: "작성자", survey_id: "의견수렴", before: "기준 일시(이전 기록)",
 };
 const VALUE_LABEL: Record<string, Record<string, string>> = {
-  status: { draft: "(안)", wip: "협의 중", ok: "확정", pending: "승인 대기", approved: "승인", rejected: "반려" },
+  status: { draft: "(안)", wip: "협의 중", ok: "확정", open: "진행 중", closed: "마감", pending: "승인 대기", approved: "승인", rejected: "반려" },
   role: { hub_admin: "UC 사업단", univ_staff: "대학 담당자", professor: "교수" },
   kind: { install_doc: "신설(설치) 공문", curriculum_doc: "교육과정표" },
 };
