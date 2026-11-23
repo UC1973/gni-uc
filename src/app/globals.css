@@ -639,3 +639,33 @@ details.add[open]{border-style:solid;padding-bottom:16px}
 .mt-files .disabled{opacity:.55;pointer-events:none}
 .mt-files .msg{margin-top:6px}
 .mt-edit{display:grid;gap:4px;margin-top:10px}
+
+/* 교육과정표 */
+.ct-wrap{overflow-x:auto}
+.ct .edit-row input,.ct .edit-row select{padding:8px 10px;border:1px solid var(--line);border-radius:8px;font:inherit;font-size:14px;background:var(--surface);color:var(--text);width:100%}
+.ct .edit-row select{width:auto}
+.ct .edit-row .ct-name input{min-width:150px}
+.ct .edit-row td:nth-child(5) input{min-width:120px}
+.ct .edit-row td:nth-child(6) input{width:100px}
+.ct .edit-row td:nth-child(7) input{min-width:140px}
+.ct-term{white-space:nowrap}
+.ct .ct-act .btn{white-space:nowrap}
+@media(max-width:760px){
+  .ct-wrap{overflow:visible;padding:0;background:none;border:0;box-shadow:none}
+  .ct,.ct tbody{display:block}
+  .ct thead{display:none}
+  .ct tr{display:grid;grid-template-columns:auto 1fr;gap:8px 12px;align-items:center;padding:14px;margin-bottom:10px;border:1px solid var(--line);border-radius:16px;background:var(--surface)}
+  .ct tr:hover td{background:none}
+  .ct td{display:contents;padding:0;border:0}
+  .ct td::before{content:attr(data-label);font-size:12px;font-weight:650;color:var(--muted)}
+  .ct td.c{text-align:left}
+  .ct td:not([data-label])::before{content:none}
+  .ct .ct-act{display:block;grid-column:1/-1}
+  .ct .ct-act .btn{width:100%;height:42px}
+  .ct .edit-row td input,.ct .edit-row td select{width:100%!important;min-width:0!important}
+  .ct td > .deg,.ct td > span,.ct .ct-deg > *{justify-self:start}
+  .ct .ct-act .btn{justify-content:center}
+  .ct-total{display:block!important;text-align:center}
+  .ct-total td{display:inline!important;margin:0 4px}
+  .ct-total td::before{content:none!important}
+}
