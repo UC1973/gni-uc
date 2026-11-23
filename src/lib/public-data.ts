@@ -1,5 +1,5 @@
 import "server-only";
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@supabase/supabase-js";
 import type { Course, Material, Notice, University } from "@/lib/types";
 
 /** Supabase 연결 전에도 화면을 볼 수 있도록 하는 기본값 (seed.sql과 같은 내용) */
@@ -28,7 +28,10 @@ const FALLBACK = {
 export async function getPublicData() {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return { ...FALLBACK, live: false };
   try {
-    const supabase = await createClient();
+    // 공개 데이터는 로그인과 무관하므로 쿠키 없이 조회합니다. → 홈페이지를 캐시해 빠르게 보여줄 수 있습니다.
+    const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!, {
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
     const [u, c, n, m, s] = await Promise.all([
       supabase.from("universities").select("*").order("sort"),
       supabase.from("courses").select("*").order("sort"),

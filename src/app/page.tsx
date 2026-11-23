@@ -5,8 +5,9 @@ import { Badge, DegBadge, Logo, Tag } from "@/components/ui";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { TERMS, type ItemStatus } from "@/lib/types";
 
-// 사업단이 관리 화면에서 바꾼 내용을 바로 보여주기 위해 요청마다 렌더링합니다.
-export const dynamic = "force-dynamic";
+// 캐시한 화면을 바로 보여주고 5분마다 새로 만듭니다.
+// 관리 화면에서 교육과정·콘텐츠를 저장하면 revalidatePath("/")로 즉시 갱신됩니다.
+export const revalidate = 300;
 
 export default async function Home() {
   const { universities, courses, notices, materials, settings } = await getPublicData();
