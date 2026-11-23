@@ -333,3 +333,7 @@ footer.pf .partners{display:flex;align-items:center;gap:20px;flex-wrap:wrap;just
 .privacy a{color:var(--blue)}
 .consent{display:flex;gap:8px;align-items:flex-start;font-size:13px;margin:4px 0 14px}
 .consent a{color:var(--blue);text-decoration:underline}
+
+/* 홈 화면 앱(PWA): 아이폰 노치·홈 인디케이터 영역 확보 */
+body{padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right);padding-bottom:env(safe-area-inset-bottom)}
+@media (display-mode:standalone){body{overscroll-behavior-y:none}}

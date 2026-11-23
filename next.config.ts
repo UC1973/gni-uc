@@ -34,6 +34,11 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       { source: "/:path*", headers: securityHeaders },
+      // 서비스 워커는 항상 최신본을 받도록 캐시하지 않음
+      { source: "/sw.js", headers: [
+        { key: "Content-Type", value: "application/javascript; charset=utf-8" },
+        { key: "Cache-Control", value: "no-cache, no-store, must-revalidate" },
+      ] },
       // 관리 화면·인증 화면은 검색엔진에 노출하지 않고 캐시하지 않음
       { source: "/(admin|login|signup|pending|forgot-password|reset-password)(.*)", headers: [
         { key: "X-Robots-Tag", value: "noindex, nofollow" },
