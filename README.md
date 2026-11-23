@@ -85,6 +85,9 @@ update public.profiles set role = 'hub_admin', status = 'approved' where email =
 
 이후 다른 교직원은 `/admin/users`에서 승인합니다.
 
+### 가입자 현황 (`/admin/members`, UC 사업단 전용)
+전체·승인·승인 대기(이메일 미인증 포함) 인원, 대학 × 역할별 가입자, 사전 승인 교직원의 가입·인증·승인 진행(미가입/인증 대기/승인 대기/승인 완료), 최근 가입 신청을 보여 줍니다. 사전 승인 목록은 `public.member_preapproval_status()`(UC 사업단만 결과 반환)로 조회합니다. 승인·역할 변경은 `/admin/users`에서 합니다.
+
 ### 사전 승인 교직원
 미리 정한 교직원은 새 마이그레이션으로 `private.member_preapprovals`(메일·성함·소속 대학·역할·직위, API 비공개)에 추가합니다. 본인이 `/signup`에서 해당 메일로 가입하고 이메일 인증을 마치면 지정 역할로 자동 승인되어 `/admin`으로 들어갑니다(이미 인증을 마친 승인 대기 계정은 마이그레이션 적용 시 바로 반영). 전화번호 등 연락처는 저장소에 남기지 않습니다.
 

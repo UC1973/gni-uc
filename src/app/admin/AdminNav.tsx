@@ -28,6 +28,7 @@ const MENU: Group[] = [
     { href: "/admin/cms", label: "콘텐츠 관리", icon: "news" },
   ] },
   { label: "관리", items: [
+    { href: "/admin/members", label: "가입자 현황", icon: "grid", hubOnly: true },
     { href: "/admin/users", label: "사용자·권한", icon: "users", hubOnly: true },
     { href: "/admin/audit", label: "변경 이력", icon: "history", hubOnly: true },
   ] },
