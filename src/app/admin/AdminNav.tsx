@@ -17,6 +17,7 @@ const MENU: Group[] = [
   { label: "교육과정", items: [
     { href: "/admin/curriculum", label: "교육과정 관리", icon: "book" },
     { href: "/admin/issues", label: "협의·학사운영", icon: "chat" },
+    { href: "/admin/meetings", label: "회의 일정·결과", icon: "calendar" },
     { href: "/admin/univs", label: "참여대학 현황", icon: "building" },
   ] },
   { label: "학생", items: [
