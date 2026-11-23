@@ -34,6 +34,7 @@
    - `supabase/migrations/20261121000700_audit_log.sql` — 변경 이력(감사 로그) 트리거, 수정·삭제 불가
    - `supabase/migrations/20261121000800_file_scan.sql` — 회신 파일 보안 검사 결과(sha256, 차단 기록)
    - `supabase/migrations/20261121000900_audit_retention.sql` — 변경 이력 3년 보관 후 자동 파기(pg_cron, 매일 03:00 KST)
+   - `supabase/migrations/20261123010000_gni_docs.sql` — GNI 공유대학 공문·일정·결정 사항·체크리스트(교직원 조회, 사업단 편집, 사업단 메모 분리) + 초기 정리본
    - `supabase/seed.sql` — 11.20. 협의 자료 기준 초기 데이터
    - 현재 운영 DB: Supabase **GNI-UC** 조직 (`aqgieoclveecopljvtuo`)의 **GNI-UC** 프로젝트 (`qbjevtjeczecysbtridj`, 도쿄) — 위 SQL 모두 적용 완료
 2. **Authentication → URL Configuration**

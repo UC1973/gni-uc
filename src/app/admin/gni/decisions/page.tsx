@@ -1,45 +1,57 @@
 import Link from "next/link";
 import { requireStaff } from "@/lib/auth";
-import { PageHead } from "@/components/admin";
-import { GNI_DECISIONS, type Decision } from "@/lib/gni-docs";
-import { SOURCE_NOTE, SrcLink } from "../parts";
-
-const AREAS: Decision["area"][] = ["교육과정", "수업운영", "학생", "학사", "비교과", "행정"];
+import { Badge } from "@/components/ui";
+import { StatusSelect } from "@/components/admin";
+import { AREAS, getGniData } from "@/lib/gni-docs";
+import { decide } from "../actions";
+import { AddPanel, DecisionForm, DocLink, EditToggle, LoadError } from "../parts";
 
 export default async function GniDecisionsPage() {
-  await requireStaff();
+  const me = await requireStaff();
+  const hub = me.role === "hub_admin";
+  const { docs, decisions, error } = await getGniData();
+  const open = decisions.filter((d) => d.status !== "ok").length;
+
   return (
     <>
-      <PageHead title="결정 필요 사항" desc={SOURCE_NOTE} />
-      <div className="alert warn">
-        <span>⚠️</span>
-        <span>
-          11.18 회의자료와 11.5 의견조회를 바탕으로 정리한 협의 대상입니다. 11.20 회의 결과는 받은 메일에 없어 반영하지 못했습니다.
-          결정된 내용은 <Link href="/admin/issues" style={{ textDecoration: "underline" }}>협의·학사운영</Link>에 기록하세요.
-        </span>
-      </div>
+      <LoadError error={error} />
+      <p className="small muted" style={{ margin: "0 4px 14px" }}>
+        협의가 필요한 안건 {open}건 · 결정 {decisions.length - open}건. 회의 결과는 각 안건에 기록하고, 학사 협의 전반은 <Link href="/admin/issues" style={{ color: "var(--blue)", fontWeight: 600 }}>협의·학사운영</Link>에서 관리합니다.
+      </p>
+      {hub && <AddPanel label="안건 추가"><DecisionForm docs={docs} /></AddPanel>}
       {AREAS.map((area) => {
-        const list = GNI_DECISIONS.filter((d) => d.area === area);
+        const list = decisions.filter((d) => d.area === area);
         if (list.length === 0) return null;
         return (
-          <div className="panel" key={area}>
-            <h2>{area} <span className="aside">{list.length}건</span></h2>
+          <section className="g-card" key={area}>
+            <h2>{area} <span className="more" style={{ color: "var(--muted)" }}>{list.length}건</span></h2>
             {list.map((d) => (
-              <div className="issue" key={d.title}>
-                <span className="cat">{area}</span>
-                <div>
+              <div className="dec" key={d.id}>
+                <div className="dec-h">
                   <b>{d.title}</b>
-                  <ul style={{ paddingLeft: 18, margin: "6px 0", fontSize: 14 }}>
-                    {d.options.map((o) => <li key={o}>{o}</li>)}
-                  </ul>
-                  <p>{d.basis}</p>
+                  <Badge status={d.status} label={d.status === "ok" ? "결정" : d.status === "wip" ? "협의 중" : "검토 전"} />
                 </div>
-                <SrcLink id={d.src} />
+                {d.options.length > 0 && <ul>{d.options.map((o, i) => <li key={i}>{o}</li>)}</ul>}
+                {d.basis && <p className="basis">{d.basis} <DocLink id={d.doc_id} docs={docs} /></p>}
+                {!d.basis && <p className="basis"><DocLink id={d.doc_id} docs={docs} /></p>}
+                {d.decision && <div className="res">결정 · {d.decision}</div>}
+                {hub && (
+                  <>
+                    <form action={decide} className="inline-f">
+                      <input type="hidden" name="id" value={d.id} />
+                      <input name="decision" defaultValue={d.decision ?? ""} placeholder="결정 내용 기록" aria-label="결정 내용" />
+                      <StatusSelect value={d.status} />
+                      <button className="btn btn-o btn-s">저장</button>
+                    </form>
+                    <EditToggle label="안건 수정"><DecisionForm d={d} docs={docs} /></EditToggle>
+                  </>
+                )}
               </div>
             ))}
-          </div>
+          </section>
         );
       })}
+      {decisions.length === 0 && !error && <div className="empty">등록된 안건이 없습니다.</div>}
     </>
   );
 }
