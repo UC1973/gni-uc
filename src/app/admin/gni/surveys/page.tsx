@@ -7,6 +7,8 @@ import type { University } from "@/lib/types";
 import { saveResponse, setSurveyStatus } from "../actions";
 import { AddPanel, DocLink, DueTag, EditToggle, LoadError, SurveyForm } from "../parts";
 import { SurveyFiles } from "./SurveyFiles";
+import { NoticeForm } from "./NoticeForm";
+import { SURVEY_NOTICE_DEFAULT_BODY } from "@/lib/email";
 
 const fmtAt = (at: string) => new Intl.DateTimeFormat("ko-KR", { timeZone: "Asia/Seoul", month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: false }).format(new Date(at));
 
@@ -20,6 +22,10 @@ export default async function GniSurveysPage() {
     getSurveys(),
     supabase.from("universities").select("id,name,short_name,sort").order("sort"),
   ]);
+  const { data: noticeRows } = hub
+    ? await supabase.from("gni_survey_notices").select("id,survey_id,audience,recipient_count,sent_by_name,sent_at").order("sent_at", { ascending: false }).limit(200)
+    : { data: [] };
+  const notices = (noticeRows ?? []) as { id: number; survey_id: number; audience: string; recipient_count: number; sent_by_name: string | null; sent_at: string }[];
   const univs = (u.data ?? []) as Pick<University, "id" | "name" | "short_name">[];
   const open = surveys.filter((s) => s.status === "open").length;
 
@@ -95,6 +101,21 @@ export default async function GniSurveysPage() {
                   <button className="btn btn-o btn-s">{isOpen ? "의견수렴 마감" : "다시 열기"}</button>
                 </form>
                 <div style={{ flexBasis: "100%" }}><EditToggle label="주제 수정"><SurveyForm s={s} docs={docs} decisions={decisions} /></EditToggle></div>
+                <div style={{ flexBasis: "100%" }}>
+                  <EditToggle label="의견수렴 안내 메일">
+                    <NoticeForm
+                      surveyId={s.id}
+                      subject={s.notice_subject ?? `[GNI 공유대학] 의견수렴 요청 — ${s.title}`}
+                      body={s.notice_body ?? SURVEY_NOTICE_DEFAULT_BODY}
+                      univs={univs.map((un) => ({ id: un.id, short_name: un.short_name, submitted: list.some((r) => r.university_id === un.id) || sFiles.some((f) => f.university_id === un.id) }))}
+                    />
+                  </EditToggle>
+                  {notices.some((n) => n.survey_id === s.id) && (
+                    <div className="nt-log">{notices.filter((n) => n.survey_id === s.id).slice(0, 5).map((n) => (
+                      <span key={n.id}>📨 {fmtAt(n.sent_at)} · {n.sent_by_name ?? "사업단"} · {n.audience} · {n.recipient_count}명</span>
+                    ))}</div>
+                  )}
+                </div>
               </div>
             )}
           </section>

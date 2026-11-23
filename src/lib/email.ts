@@ -56,3 +56,33 @@ export async function sendRejected(to: string, name: string) {
   await send(to, "[GNI-UC] 가입 신청 결과 안내",
     layout(`${esc(name)}님의 가입 신청이 승인되지 않았습니다`, `<p>문의는 UC 사업단으로 연락해 주세요.</p>`));
 }
+
+export const SURVEY_NOTICE_DEFAULT_BODY = `안녕하세요. 울산과학대학교 5극3특공유대학사업단입니다.
+
+GNI 공유대학 산업AX전공 운영을 위해 「{주제}」에 대한 대학별 의견을 모으고 있습니다.
+gni-uc.org에 로그인한 뒤 [공유대학 준비 › 의견수렴]에서 소속 대학 의견을 남겨 주세요.
+필요한 자료는 첨부파일(최대 3개, 각 10MB 이하)로 올릴 수 있습니다.
+
+마감: {마감일}
+감사합니다.`;
+
+/** 의견수렴 안내 메일 — 수신자마다 따로 보내 서로의 주소가 보이지 않게 합니다. */
+export async function sendSurveyNotice(to: string[], subject: string, body: string, link: string): Promise<{ sent: number; error?: string }> {
+  const resend = client();
+  if (!resend) return { sent: 0, error: "메일 발송 설정(RESEND_API_KEY)이 없습니다." };
+  const html = layout(esc(subject),
+    `<div style="white-space:pre-line;font-size:15px;line-height:1.7">${esc(body)}</div>
+     <p style="margin-top:20px"><a href="${esc(link)}" style="display:inline-block;padding:12px 20px;background:#2F6BFF;color:#fff;border-radius:8px;text-decoration:none;font-weight:700">로그인하고 의견 남기기</a></p>
+     <p style="font-size:12px;color:#5A6482">버튼이 열리지 않으면 주소창에 입력하세요: ${esc(link)}</p>`);
+  let sent = 0;
+  for (let i = 0; i < to.length; i += 100) {
+    const chunk = to.slice(i, i + 100);
+    const { error } = await resend.batch.send(chunk.map((addr) => ({ from: FROM, to: addr, subject, html })));
+    if (error) {
+      console.error("[email] 의견수렴 안내 발송 실패:", error);
+      return { sent, error: "메일 발송 중 오류가 발생했습니다." };
+    }
+    sent += chunk.length;
+  }
+  return { sent };
+}

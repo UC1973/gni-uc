@@ -610,3 +610,11 @@ details.add[open]{border-style:solid;padding-bottom:16px}
 .sv-files{margin-top:10px;padding-top:8px;border-top:1px dashed var(--line)}
 .sv-files .disabled{opacity:.55;pointer-events:none}
 .sv-files .msg{margin-top:6px}
+.nt-univs{display:flex;flex-wrap:wrap;gap:6px 14px;font-weight:600;color:var(--text);font-size:13.5px}
+.nt-univs label{display:flex;align-items:center;gap:5px}
+.nt-univs small{color:var(--muted);font-weight:500}
+.nt-chk{align-content:end}
+.nt-chk span:first-child{display:flex;align-items:center;gap:6px;color:var(--text);font-size:13.5px}
+.nt-err{color:var(--bad);font-weight:600}
+.nt-log{margin-top:8px;font-size:12.5px;color:var(--muted);display:grid;gap:3px}
+.fgrid input[type=checkbox]{width:auto;padding:0;accent-color:var(--blue)}

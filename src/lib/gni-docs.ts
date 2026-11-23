@@ -42,14 +42,14 @@ export type Milestone = { id: number; starts_on: string; ends_on: string | null;
 export type Decision = { id: number; area: Area; title: string; options: string[]; basis: string | null; status: "draft" | "wip" | "ok"; decision: string | null; doc_id: number | null; sort: number };
 export type CheckItem = { id: number; grp: string; task: string; owner: string | null; due_on: string | null; doc_id: number | null; done: boolean; done_at: string | null; sort: number };
 
-export type Survey = { id: number; area: Area; title: string; question: string | null; due_on: string | null; status: "open" | "closed"; doc_id: number | null; decision_id: number | null; sort: number };
+export type Survey = { id: number; area: Area; title: string; question: string | null; due_on: string | null; status: "open" | "closed"; doc_id: number | null; decision_id: number | null; sort: number; notice_subject: string | null; notice_body: string | null };
 export type SurveyResponse = { survey_id: number; university_id: string; body: string; updated_at: string; author_name: string | null };
 
 /** 의견수렴 주제와 대학별 의견 (조회는 승인된 교직원 전체, 수정은 RLS로 소속 대학만) */
 export async function getSurveys() {
   const supabase = await createClient();
   const [s, r, f] = await Promise.all([
-    supabase.from("gni_surveys").select("id,area,title,question,due_on,status,doc_id,decision_id,sort").order("status", { ascending: false }).order("sort").order("id", { ascending: false }),
+    supabase.from("gni_surveys").select("id,area,title,question,due_on,status,doc_id,decision_id,sort,notice_subject,notice_body").order("status", { ascending: false }).order("sort").order("id", { ascending: false }),
     supabase.from("gni_survey_responses").select("survey_id,university_id,body,updated_at,author_name"),
     supabase.from("gni_survey_files").select("id,survey_id,university_id,file_name,size_bytes,author_name,created_at").order("created_at"),
   ]);
