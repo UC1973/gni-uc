@@ -1,101 +1,113 @@
 import Link from "next/link";
 import { requireStaff } from "@/lib/auth";
-import { PageHead } from "@/components/admin";
-import { DegBadge } from "@/components/ui";
-import { AX_COURSES, GNI_CHECKLIST, GNI_DECISIONS, GNI_DOCS, GNI_SCHEDULE, dday, fmtDate } from "@/lib/gni-docs";
-import { DueTag, KindTag, SOURCE_NOTE, SrcLink } from "./parts";
+import { dday, fmtShort, getGniData } from "@/lib/gni-docs";
+import { DocLink, DueTag, KindTag, LoadError } from "./parts";
 
 export default async function GniOverviewPage() {
   const me = await requireStaff();
   const hub = me.role === "hub_admin";
+  const { docs, schedule, decisions, checklist, error } = await getGniData();
 
-  const upcoming = GNI_SCHEDULE.filter((m) => dday(m.end ?? m.date) >= 0).sort((a, b) => a.date.localeCompare(b.date));
-  const items = GNI_CHECKLIST.flatMap((g) => g.items);
-  const done = items.filter((i) => i.done).length;
-  const recent = [...GNI_DOCS].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 5);
+  const upcoming = schedule.filter((m) => dday(m.ends_on ?? m.starts_on) >= 0).slice(0, 6);
   const next = upcoming[0];
+  const nextD = next ? dday(next.starts_on) : null;
+  const done = checklist.filter((c) => c.done).length;
+  const pct = checklist.length ? Math.round((done / checklist.length) * 100) : 0;
+  const openDecisions = decisions.filter((d) => d.status !== "ok").length;
+  const dueSoon = checklist.filter((c) => !c.done && c.due_on && dday(c.due_on) >= 0).sort((a, b) => a.due_on!.localeCompare(b.due_on!)).slice(0, 4);
 
   return (
     <>
-      <PageHead title="GNI 공유대학 준비" desc={SOURCE_NOTE} />
-
-      <div className="kpis">
-        <div className="kpi dday">
+      <LoadError error={error} />
+      <div className="g-hero">
+        <div className="g-stat next">
           <div className="l">다음 일정</div>
-          <div className="v">{!next ? "-" : dday(next.date) <= 0 ? "진행 중" : `D-${dday(next.date)}`}</div>
-          <div className="d">{next ? `${fmtDate(next.date)} ${next.title}` : "예정된 일정 없음"}</div>
+          <div className="v">{nextD === null ? "—" : nextD <= 0 ? "진행 중" : `D-${nextD}`}</div>
+          <div className="d">{next ? `${fmtShort(next.starts_on)} ${next.title}` : "예정된 일정이 없습니다"}</div>
         </div>
-        <div className="kpi"><div className="l">정리한 공문·메일</div><div className="v">{GNI_DOCS.length}<small>건</small></div><div className="d">2026.08.18. ~ 11.18.</div></div>
-        <div className="kpi"><div className="l">결정 필요 사항</div><div className="v">{GNI_DECISIONS.length}<small>건</small></div><div className="d">11.20 회의 협의사항 등</div></div>
-        <div className="kpi">
-          <div className="l">준비 체크리스트</div><div className="v">{done}<small> / {items.length}</small></div>
-          <div className="prog"><i style={{ width: `${Math.round((done / items.length) * 100)}%` }} /></div>
-        </div>
+        <Link href="/admin/gni/docs" className="g-stat">
+          <div className="l">공문·메일</div>
+          <div className="v">{docs.length}<small> 건</small></div>
+          <div className="d">{docs[0] ? `최근 ${fmtShort(docs[0].doc_date)}` : "등록된 문서 없음"}</div>
+        </Link>
+        <Link href="/admin/gni/decisions" className="g-stat">
+          <div className="l">결정 대기</div>
+          <div className="v">{openDecisions}<small> / {decisions.length}</small></div>
+          <div className="d">협의가 필요한 안건</div>
+        </Link>
+        <Link href="/admin/gni/checklist" className="g-stat">
+          <div className="l">준비 진행률</div>
+          <div className="v">{pct}<small>%</small></div>
+          <div className="ring"><i style={{ width: `${pct}%` }} /></div>
+        </Link>
       </div>
 
-      <div className="cols">
-        <div className="panel">
-          <h2>다가오는 일정 <Link href="/admin/gni/schedule" className="aside">전체 일정 →</Link></h2>
+      <div className="g-grid2">
+        <section className="g-card">
+          <h2>다가오는 일정 <Link className="more" href="/admin/gni/schedule">전체 일정</Link></h2>
           {upcoming.length === 0 ? <div className="empty">남은 일정이 없습니다.</div> : (
-            <ul className="todo">
+            <ul className="g-list">
               {upcoming.map((m) => (
-                <li key={m.title}>
-                  <DueTag date={m.date} end={m.end} />
-                  <span><b>{m.title}</b><br /><span className="small muted">{fmtDate(m.date)}{m.end ? ` ~ ${fmtDate(m.end)}` : ""} · {m.who}</span></span>
-                  <SrcLink id={m.src} />
+                <li className="g-row" key={m.id}>
+                  <div className="when"><b>{Number(m.starts_on.slice(8))}</b><small>{Number(m.starts_on.slice(5, 7))}월</small></div>
+                  <div className="body">
+                    <b>{m.title}</b>
+                    <div className="sub">{m.owner ?? "담당 미정"}{m.ends_on ? ` · ~${fmtShort(m.ends_on)}` : ""}</div>
+                  </div>
+                  <div className="side-r"><DueTag date={m.starts_on} end={m.ends_on} /><DocLink id={m.doc_id} docs={docs} /></div>
                 </li>
               ))}
             </ul>
           )}
-        </div>
-        <div className="panel">
+        </section>
+
+        <section className="g-card">
           <h2>사업 개요</h2>
-          <table>
-            <tbody>
-              <tr><th>사업명</th><td>지역성장 인재양성체계(앵커) 5극3특 공유대학 — GNI(지니)공유대학</td></tr>
-              <tr><th>주관대학</th><td>경상국립대학교</td></tr>
-              <tr><th>중심대학</th><td>울산과학대·마산대·경남대·국립부경대·동아대</td></tr>
-              <tr><th>사업기간</th><td>2026.9.1.~2030.2. (1차년도 ~2027.2.28.)</td></tr>
-              <tr><th>울산과학대 역할</th><td>미래모빌리티 혁신제조분야 중심대학, 산업AX전공 직접 운영·참여대학 협력 총괄</td></tr>
-              <tr><th>산업AX 참여대학</th><td>김해대·동의과학대·연암공대·한국승강기대 (11개 학과)</td></tr>
-              {hub && <tr><th>사업비</th><td>연 300백만원 (1~4차년도 총 1,200백만원)</td></tr>}
-            </tbody>
-          </table>
-          <p className="small muted" style={{ marginTop: 10 }}>근거: <SrcLink id="1022" /> · <SrcLink id="1118" /></p>
-        </div>
+          <ul className="g-list">
+            {([
+              ["주관", "경상국립대학교"],
+              ["중심대학", "울산과학대 · 마산대 · 경남대 · 국립부경대 · 동아대"],
+              ["기간", "2026.9.1. ~ 2030.2. (1차년도 ~2027.2.28.)"],
+              ["역할", "미래모빌리티 혁신제조분야 중심대학 · 산업AX전공 운영"],
+              ["참여대학", "김해대 · 동의과학대 · 연암공대 · 한국승강기대"],
+              ...(hub ? [["사업비", "연 300백만원 (4년 총 1,200백만원)"]] : []),
+            ] as [string, string][]).map(([k, v]) => (
+              <li className="g-row" key={k}>
+                <div className="body"><div className="sub">{k}</div><b style={{ fontWeight: 600 }}>{v}</b></div>
+              </li>
+            ))}
+          </ul>
+        </section>
       </div>
 
-      <div className="panel">
-        <h2>산업AX 교육과정(안) <span className="aside">MD 산업AX실무 12학점 · ND 산업AX기초 8학점 · 전공선택</span></h2>
-        <div style={{ overflowX: "auto" }}>
-          <table>
-            <thead><tr><th>학년-학기</th><th>교과목</th><th>개설대학</th><th>학점(이론/실습/계)</th><th>구분</th></tr></thead>
-            <tbody>
-              {AX_COURSES.map((c) => (
-                <tr key={c.name}>
-                  <td>{c.term}</td>
-                  <td><b>{c.name}</b><div className="small muted">{c.en}</div></td>
-                  <td>{c.univ}</td><td>{c.credit}</td><td><DegBadge degree={c.deg} /></td>
-                </tr>
+      <div className="g-grid2">
+        <section className="g-card">
+          <h2>최근 공문·메일 <Link className="more" href="/admin/gni/docs">전체 보기</Link></h2>
+          <ul className="g-list">
+            {docs.slice(0, 5).map((d) => (
+              <li className="g-row" key={d.id}>
+                <div className="when"><b>{Number(d.doc_date.slice(8))}</b><small>{Number(d.doc_date.slice(5, 7))}월</small></div>
+                <Link className="body" href={`/admin/gni/docs#d-${d.id}`}>
+                  <b>{d.title}</b>
+                  <div className="sub" style={{ display: "flex", gap: 4, marginTop: 4 }}><KindTag kind={d.kind} dir={d.direction} /></div>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+        <section className="g-card">
+          <h2>마감 임박 할 일 <Link className="more" href="/admin/gni/checklist">체크리스트</Link></h2>
+          {dueSoon.length === 0 ? <div className="empty">기한이 있는 남은 할 일이 없습니다.</div> : (
+            <ul className="g-list">
+              {dueSoon.map((c) => (
+                <li className="g-row" key={c.id}>
+                  <div className="body"><b>{c.task}</b><div className="sub">{c.grp} · {c.owner ?? "담당 미정"} · {fmtShort(c.due_on!)}</div></div>
+                  <div className="side-r"><DueTag date={c.due_on} /></div>
+                </li>
               ))}
-            </tbody>
-          </table>
-        </div>
-        <p className="small muted" style={{ marginTop: 10 }}>근거: <SrcLink id="1118" /> 회의자료. 2-2학기·동계 개설대학은 참여대학 분담 협의 후 확정합니다.</p>
-      </div>
-
-      <div className="panel">
-        <h2>최근 공문·메일 <Link href="/admin/gni/docs" className="aside">전체 보기 →</Link></h2>
-        <ul className="todo">
-          {recent.map((d) => (
-            <li key={d.id}>
-              <span className="small muted" style={{ minWidth: 92 }}>{fmtDate(d.date)}</span>
-              <KindTag kind={d.kind} dir={d.dir} />
-              <span>{d.title}</span>
-              <Link href={`/admin/gni/docs#d-${d.id}`}>보기</Link>
-            </li>
-          ))}
-        </ul>
+            </ul>
+          )}
+        </section>
       </div>
     </>
   );

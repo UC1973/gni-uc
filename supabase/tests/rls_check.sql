@@ -85,6 +85,19 @@ begin
     r := r || ' | FAIL staff forged audit log';
   exception when others then r := r || ' | ok staff cannot forge audit log'; end;
 
+  -- GNI 공문: 읽기만 가능, 사업단 메모는 볼 수 없음
+  select count(*) into n from public.gni_docs;
+  r := r || case when n > 0 then ' | ok staff reads gni docs' else ' | FAIL staff gni docs='||n end;
+  select count(*) into n from public.gni_doc_notes;
+  r := r || case when n = 0 then ' | ok staff cannot read gni hub notes' else ' | FAIL staff reads gni hub notes' end;
+  update public.gni_checklist set done = not done;
+  get diagnostics n = row_count;
+  r := r || case when n = 0 then ' | ok staff cannot edit gni checklist' else ' | FAIL staff edited gni checklist' end;
+  begin
+    insert into public.gni_docs (doc_date, sender, title) values (current_date, 'x', 'x');
+    r := r || ' | FAIL staff added gni doc';
+  exception when others then r := r || ' | ok staff cannot add gni doc'; end;
+
   -- ---------- 동의과학대 교수 ----------
   execute 'reset role';
   perform set_config('request.jwt.claims', json_build_object('sub', prof, 'role', 'authenticated')::text, true);
@@ -104,6 +117,8 @@ begin
   r := r || case when n = 0 then ' | ok pending cannot read issues' else ' | FAIL pending reads issues' end;
   select count(*) into n from public.students;
   r := r || case when n = 0 then ' | ok pending cannot read students' else ' | FAIL pending reads students' end;
+  select count(*) into n from public.gni_docs;
+  r := r || case when n = 0 then ' | ok pending cannot read gni docs' else ' | FAIL pending reads gni docs' end;
   select count(*) into n from storage.objects where bucket_id = 'replies';
   r := r || case when n = 0 then ' | ok pending cannot read files' else ' | FAIL pending reads files' end;
 
@@ -117,6 +132,10 @@ begin
   exception when others then r := r || ' | ok anon cannot read profiles'; end;
   select count(*) into n from storage.objects where bucket_id = 'replies';
   r := r || case when n = 0 then ' | ok anon cannot read files' else ' | FAIL anon reads files' end;
+  begin
+    select count(*) into n from public.gni_docs;
+    r := r || ' | FAIL anon read gni docs';
+  exception when others then r := r || ' | ok anon cannot read gni docs'; end;
 
   execute 'reset role';
   -- 위 작업이 이력에 남았는지 (담당자 본인 회신 수정)

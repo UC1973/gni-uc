@@ -1,51 +1,39 @@
 import { requireStaff } from "@/lib/auth";
-import { PageHead } from "@/components/admin";
-import { GNI_SCHEDULE, fmtDate, type Milestone } from "@/lib/gni-docs";
-import { DueTag, SOURCE_NOTE, SrcLink } from "../parts";
-
-const PHASES: Milestone["phase"][] = ["사업 착수", "교육과정 신설", "운영 준비", "학기 운영"];
+import { PHASES, fmtShort, getGniData } from "@/lib/gni-docs";
+import { AddPanel, DocLink, DueTag, EditToggle, LoadError, MilestoneForm } from "../parts";
 
 export default async function GniSchedulePage() {
-  await requireStaff();
-  const sorted = [...GNI_SCHEDULE].sort((a, b) => a.date.localeCompare(b.date));
+  const me = await requireStaff();
+  const hub = me.role === "hub_admin";
+  const { docs, schedule, error } = await getGniData();
 
   return (
     <>
-      <PageHead title="공유대학 준비 일정" desc={SOURCE_NOTE} />
-      <div className="steps panel" style={{ padding: 0, overflow: "hidden" }}>
-        {PHASES.map((p) => {
-          const list = sorted.filter((m) => m.phase === p);
-          return (
-            <div key={p}>
-              <b>{p}</b>
-              <small>{fmtDate(list[0].date).slice(2, 8)} ~ {fmtDate(list[list.length - 1].end ?? list[list.length - 1].date).slice(2, 8)} · {list.length}건</small>
-            </div>
-          );
-        })}
-      </div>
-
-      {PHASES.map((p) => (
-        <div className="panel" key={p}>
-          <h2>{p}</h2>
-          <div style={{ overflowX: "auto" }}>
-            <table>
-              <thead><tr><th>일자</th><th>일정</th><th>담당</th><th>근거</th><th>상태</th></tr></thead>
-              <tbody>
-                {sorted.filter((m) => m.phase === p).map((m) => (
-                  <tr key={m.title}>
-                    <td style={{ whiteSpace: "nowrap" }}>{fmtDate(m.date)}{m.end && <><br /><span className="small muted">~ {fmtDate(m.end)}</span></>}</td>
-                    <td><b>{m.title}</b></td>
-                    <td className="small">{m.who}</td>
-                    <td><SrcLink id={m.src} /></td>
-                    <td><DueTag date={m.date} end={m.end} /></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      ))}
-      <p className="small muted">학생 선발은 공문에 ‘12월 예정’으로만 적혀 있어 12월 한 달로 표시했습니다. 1학기 개시일은 대학별 학사일정을 확인해 주세요.</p>
+      <LoadError error={error} />
+      {hub && <AddPanel label="일정 추가"><MilestoneForm docs={docs} /></AddPanel>}
+      {PHASES.map((phase) => {
+        const list = schedule.filter((m) => m.phase === phase);
+        if (list.length === 0) return null;
+        return (
+          <section className="g-card" key={phase}>
+            <h2>{phase} <span className="more" style={{ color: "var(--muted)" }}>{list.length}건</span></h2>
+            <ul className="g-list">
+              {list.map((m) => (
+                <li className="g-row" key={m.id} style={{ flexWrap: "wrap" }}>
+                  <div className="when"><b>{Number(m.starts_on.slice(8))}</b><small>{m.starts_on.slice(2, 4)}.{Number(m.starts_on.slice(5, 7))}월</small></div>
+                  <div className="body">
+                    <b>{m.title}</b>
+                    <div className="sub">{fmtShort(m.starts_on)}{m.ends_on ? ` ~ ${fmtShort(m.ends_on)}` : ""} · {m.owner ?? "담당 미정"}</div>
+                  </div>
+                  <div className="side-r"><DueTag date={m.starts_on} end={m.ends_on} /><DocLink id={m.doc_id} docs={docs} /></div>
+                  {hub && <div style={{ flexBasis: "100%" }}><EditToggle><MilestoneForm m={m} docs={docs} /></EditToggle></div>}
+                </li>
+              ))}
+            </ul>
+          </section>
+        );
+      })}
+      {schedule.length === 0 && !error && <div className="empty">등록된 일정이 없습니다.</div>}
     </>
   );
 }

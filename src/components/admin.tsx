@@ -2,9 +2,9 @@ import { STATUS_LABEL, type ItemStatus } from "@/lib/types";
 
 export function PageHead({ title, desc }: { title: string; desc?: string }) {
   return (
-    <div style={{ marginBottom: 18 }}>
-      <h1 style={{ fontSize: 22 }}>{title}</h1>
-      {desc && <p className="small muted">{desc}</p>}
+    <div className="phead">
+      <h1>{title}</h1>
+      {desc && <p>{desc}</p>}
     </div>
   );
 }
