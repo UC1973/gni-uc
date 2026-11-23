@@ -5,6 +5,7 @@ export async function proxy(request: NextRequest) {
   return updateSession(request);
 }
 
+// 세션 갱신이 필요한 경로에서만 실행 (홈페이지·개인정보 처리방침 등 공개 페이지는 건너뜀)
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|manifest.webmanifest|sw.js|offline.html|icons/|.*\\.(?:svg|png|jpg|jpeg|gif|webp|pdf|ico|txt|xml)$).*)"],
+  matcher: ["/admin/:path*", "/api/:path*", "/auth/:path*", "/login", "/signup", "/pending", "/forgot-password", "/reset-password"],
 };
