@@ -669,3 +669,8 @@ details.add[open]{border-style:solid;padding-bottom:16px}
   .ct-total td{display:inline!important;margin:0 4px}
   .ct-total td::before{content:none!important}
 }
+.cr-kpis{margin-bottom:16px}
+.cr-ok{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);display:grid;gap:8px}
+.cr-ok ul{list-style:none;display:grid;gap:6px}
+.cr-ok li{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:14px}
+@media(max-width:640px){.cr-list > h2{flex-wrap:wrap}.cr-list > h2 .aside{margin-left:0;width:100%}}

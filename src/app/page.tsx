@@ -1,9 +1,10 @@
 import Link from "next/link";
 import Image from "next/image";
 import { getPublicData } from "@/lib/public-data";
-import { Badge, DegBadge, Logo, Tag } from "@/components/ui";
+import { Badge, Logo, Tag } from "@/components/ui";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { TERMS, type ItemStatus } from "@/lib/types";
+import { CourseRoadmap } from "@/components/CourseRoadmap";
+import type { ItemStatus } from "@/lib/types";
 
 // 캐시한 화면을 바로 보여주고 5분마다 새로 만듭니다.
 // 관리 화면에서 교육과정·콘텐츠를 저장하면 revalidatePath("/")로 즉시 갱신됩니다.
@@ -128,24 +129,7 @@ export default async function Home() {
               <div className="deg deg-md"><small>MICRO DEGREE</small><b>산업AX실무 · {md.reduce((a, c) => a + c.credits, 0)}학점</b><small>{md.map((c) => c.name).join(" · ")}</small></div>
             </div>
             <div className="legend">상태 표시: <Badge status="ok" /> <Badge status="wip" /> <Badge status="draft" /> <span>· 학점은 (이론/실습/계)</span></div>
-            <div className="road">
-              {TERMS.map(([key, label]) => {
-                const list = courses.filter((c) => c.term === key);
-                return (
-                  <div className="term" key={key}>
-                    <h4><span>{label}</span><span className="num">{list.reduce((a, c) => a + c.credits, 0)}학점</span></h4>
-                    {list.map((c) => (
-                      <div className="course" key={c.id} style={{ ["--c" as string]: c.degree === "ND" ? "var(--nd)" : "var(--md)" }}>
-                        <div className="top"><DegBadge degree={c.degree} /><Badge status={c.status} /></div>
-                        <b>{c.name}</b>
-                        <div className="meta num"><span>{c.theory}/{c.practice}/{c.credits}학점</span><span>개설: {c.host}</span></div>
-                        {c.note && <div className="note">※ {c.note}</div>}
-                      </div>
-                    ))}
-                  </div>
-                );
-              })}
-            </div>
+            <CourseRoadmap courses={courses} />
             <div className="mode">
               <div><b>💻 비대면 수업 (기본)</b><p>공동 LMS와 실시간 화상수업으로, 대학 사이를 이동하지 않아도 됩니다.</p></div>
               <div><b>🔀 실습은 하이브리드</b><p>대면 실습과 실시간 비대면 수업을 과목 특성에 맞게 함께 운영합니다.</p></div>
