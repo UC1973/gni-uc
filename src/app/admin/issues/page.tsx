@@ -48,7 +48,7 @@ export default async function IssuesPage() {
           </div>
         ))}
       </div>
-      <div className="panel"><h2>회의 기록</h2>
+      <div className="panel"><h2>회의 기록 <a className="btn btn-o btn-s" href="/admin/meetings">회의 일정·결과</a></h2>
         <table><thead><tr><th>일자</th><th>회의</th><th>참석</th><th>요약</th></tr></thead><tbody>
           {meetings.map((x) => <tr key={x.id}><td className="num">{x.held_on}</td><td><b>{x.title}</b></td><td>{x.attendees}</td><td className="small muted">{x.summary}</td></tr>)}
         </tbody></table>

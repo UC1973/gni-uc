@@ -618,3 +618,24 @@ details.add[open]{border-style:solid;padding-bottom:16px}
 .nt-err{color:var(--bad);font-weight:600}
 .nt-log{margin-top:8px;font-size:12.5px;color:var(--muted);display:grid;gap:3px}
 .fgrid input[type=checkbox]{width:auto;padding:0;accent-color:var(--blue)}
+
+/* 회의 일정·결과 */
+.mt-h{display:flex;gap:12px;justify-content:space-between;align-items:flex-start}
+.mt-h h2{font-size:17px;font-weight:750;margin-top:4px;line-height:1.4}
+.mt-when{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--blue);font-variant-numeric:tabular-nums}
+.mt-tags{display:flex;gap:6px;flex:none}
+.mt-meta{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:10px 0 0;font-size:13.5px}
+.mt-meta dt{color:var(--muted);font-weight:600}
+.mt-meta dd{margin:0;overflow-wrap:anywhere}
+.mt-meta a{color:var(--blue);font-weight:600}
+.mt-lbl{font-size:12px;font-weight:750;color:var(--muted);letter-spacing:.02em;margin-bottom:4px}
+.mt-sec{margin-top:12px}
+.mt-sec ol,.mt-result ul{margin:0;padding-left:20px;font-size:14px;line-height:1.6}
+.mt-notice{margin-top:10px;padding:10px 12px;border-radius:12px;background:var(--bg);font-size:13.5px;white-space:pre-line}
+.mt-result{margin-top:14px;padding:12px 14px;border-radius:14px;background:var(--ok-bg);font-size:14px;display:grid;gap:6px}
+.mt-result .mt-lbl{color:var(--ok)}
+.mt-sub{font-size:12.5px;font-weight:700;margin-top:4px}
+.mt-files{margin-top:12px;padding-top:10px;border-top:1px dashed var(--line)}
+.mt-files .disabled{opacity:.55;pointer-events:none}
+.mt-files .msg{margin-top:6px}
+.mt-edit{display:grid;gap:4px;margin-top:10px}
