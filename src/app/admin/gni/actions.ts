@@ -3,6 +3,9 @@
 import { revalidatePath } from "next/cache";
 import { requireStaff } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { SURVEY_BUCKET } from "@/lib/survey-files";
+import { sendSurveyNotice } from "@/lib/email";
+import { fmtShort } from "@/lib/gni-docs";
 import { AREAS, DIRECTIONS, DOC_KINDS, FILE_STATES, PHASES, type Attachment, type DocRequest } from "@/lib/gni-docs";
 
 const str = (v: FormDataEntryValue | null) => String(v ?? "").trim();
@@ -251,6 +254,9 @@ export async function deleteSurvey(form: FormData) {
   const supabase = await hub();
   const rowId = id(form.get("id"));
   if (!rowId) return;
+  // 첨부파일 저장소 정리 (행은 주제 삭제 시 함께 삭제)
+  const { data: files } = await supabase.from("gni_survey_files").select("object_path").eq("survey_id", rowId);
+  if (files?.length) await supabase.storage.from(SURVEY_BUCKET).remove(files.map((f) => f.object_path));
   const { error } = await supabase.from("gni_surveys").delete().eq("id", rowId);
   fail("의견수렴 삭제", error);
   done();
@@ -270,3 +276,56 @@ export async function saveResponse(form: FormData) {
   fail("의견 저장", error);
   done();
 }
+
+/* ---------- 의견수렴 안내 메일 (사업단) ---------- */
+export type NoticeState = { ok: boolean; message: string } | null;
+
+const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://gni-uc.org";
+
+/** 안내 문구 저장, intent=send면 선택한 대상에게 발송 */
+export async function surveyNotice(_prev: NoticeState, form: FormData): Promise<NoticeState> {
+  const supabase = await hub();
+  const surveyId = id(form.get("survey_id"));
+  if (!surveyId) return { ok: false, message: "의견수렴 주제를 찾을 수 없습니다." };
+  const subject = str(form.get("subject")).slice(0, 200);
+  const body = str(form.get("body")).slice(0, 5000);
+  if (!subject || !body) return { ok: false, message: "제목과 내용을 입력해 주세요." };
+
+  const { data: survey, error: sErr } = await supabase.from("gni_surveys").update({ notice_subject: subject, notice_body: body }).eq("id", surveyId).select("id,title,due_on").single();
+  if (sErr || !survey) return { ok: false, message: "안내 문구를 저장하지 못했습니다." };
+  revalidatePath("/admin/gni/surveys");
+  if (str(form.get("intent")) !== "send") return { ok: true, message: "안내 문구를 저장했습니다." };
+
+  const scope = str(form.get("scope")) === "all" ? "all" : "pending";
+  const univs = form.getAll("univ").map(String).filter(Boolean);
+  const roles = form.get("professors") ? ["hub_admin", "univ_staff", "professor"] : ["hub_admin", "univ_staff"];
+  if (!univs.length) return { ok: false, message: "보낼 대학을 하나 이상 선택해 주세요." };
+
+  let targets = univs;
+  if (scope === "pending") {
+    const [r, f] = await Promise.all([
+      supabase.from("gni_survey_responses").select("university_id").eq("survey_id", surveyId),
+      supabase.from("gni_survey_files").select("university_id").eq("survey_id", surveyId),
+    ]);
+    const done = new Set([...(r.data ?? []), ...(f.data ?? [])].map((x) => x.university_id));
+    targets = univs.filter((u) => !done.has(u));
+    if (!targets.length) return { ok: false, message: "선택한 대학은 모두 제출했습니다." };
+  }
+  const { data: people } = await supabase.from("profiles").select("email").eq("status", "approved").in("role", roles).in("university_id", targets);
+  const to = [...new Set((people ?? []).map((p) => p.email.toLowerCase()))];
+  if (!to.length) return { ok: false, message: "보낼 대상(승인된 회원)이 없습니다." };
+
+  const fill = (t: string) => t.replaceAll("{주제}", survey.title).replaceAll("{마감일}", survey.due_on ? fmtShort(survey.due_on) : "별도 안내");
+  const res = await sendSurveyNotice(to, fill(subject), fill(body), `${SITE}/admin/gni/surveys#s-${surveyId}`);
+  if (res.sent > 0) {
+    await supabase.from("gni_survey_notices").insert({
+      survey_id: surveyId, subject: fill(subject), body: fill(body),
+      audience: `${scope === "pending" ? "미제출" : "전체"} ${targets.length}개 대학${roles.includes("professor") ? " · 교수 포함" : ""}`,
+      recipient_count: res.sent,
+    });
+    revalidatePath("/admin/gni/surveys");
+  }
+  if (res.error) return { ok: false, message: `${res.sent}명에게 보낸 뒤 오류가 발생했습니다: ${res.error}` };
+  return { ok: true, message: `${res.sent}명에게 안내 메일을 보냈습니다.` };
+}
+
