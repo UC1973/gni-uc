@@ -3,9 +3,9 @@ import { Tag } from "@/components/ui";
 import { Icon } from "@/components/icons";
 import {
   AREAS, DIRECTIONS, DOC_KINDS, PHASES, attachmentsToText, dday, requestsToText,
-  type CheckItem, type Decision, type DocKind, type Direction, type GniDoc, type Milestone,
+  type CheckItem, type Decision, type DocKind, type Direction, type GniDoc, type Milestone, type Survey,
 } from "@/lib/gni-docs";
-import { createDoc, deleteCheck, deleteDecision, deleteDoc, deleteMilestone, saveCheck, saveDecision, saveMilestone, updateDoc } from "./actions";
+import { createDoc, deleteCheck, deleteDecision, deleteDoc, deleteMilestone, deleteSurvey, saveCheck, saveDecision, saveMilestone, saveSurvey, updateDoc } from "./actions";
 
 export function KindTag({ kind, dir }: { kind: DocKind; dir: Direction }) {
   const tone = kind === "공문" ? "info" : kind === "회의" ? "ok" : "draft";
@@ -111,6 +111,33 @@ export function DecisionForm({ d, docs }: { d?: Decision; docs: GniDoc[] }) {
       <div className="f-actions">
         {d && <DeleteButton action={deleteDecision} what="결정 사항" />}
         <button className="btn btn-p btn-s">{d ? "수정 저장" : "안건 추가"}</button>
+      </div>
+    </form>
+  );
+}
+
+/* ---------- 의견수렴 주제 입력 ---------- */
+export function SurveyForm({ s, docs, decisions }: { s?: Survey; docs: GniDoc[]; decisions: Decision[] }) {
+  return (
+    <form action={saveSurvey}>
+      {s && <input type="hidden" name="id" value={s.id} />}
+      <div className="fgrid">
+        <label>분야<select name="area" defaultValue={s?.area ?? "교육과정"}>{AREAS.map((a) => <option key={a}>{a}</option>)}</select></label>
+        <label className="w2">주제<input name="title" required defaultValue={s?.title ?? ""} placeholder="예: 나노디그리 개설(포함) 희망 교과목" /></label>
+        <label>마감일<input type="date" name="due_on" defaultValue={s?.due_on ?? ""} /></label>
+        <label className="w4">요청 내용 <span className="hint">대학 관계자에게 보이는 안내</span><textarea name="question" defaultValue={s?.question ?? ""} placeholder="예: 희망 교과목을 한 줄에 하나씩 · 교과목명 | 학점 | 개설 학기 | 비고" /></label>
+        <label>상태<select name="status" defaultValue={s?.status ?? "open"}><option value="open">진행 중</option><option value="closed">마감</option></select></label>
+        <label>근거 문서<DocSelect docs={docs} value={s?.doc_id} /></label>
+        <label className="w2">연결할 결정 사항
+          <select name="decision_id" defaultValue={s?.decision_id ?? ""}>
+            <option value="">(연결 안 함)</option>
+            {decisions.map((d) => <option key={d.id} value={d.id}>{d.area} · {d.title.slice(0, 40)}</option>)}
+          </select>
+        </label>
+      </div>
+      <div className="f-actions">
+        {s && <DeleteButton action={deleteSurvey} what="의견수렴" />}
+        <button className="btn btn-p btn-s">{s ? "수정 저장" : "의견수렴 등록"}</button>
       </div>
     </form>
   );
