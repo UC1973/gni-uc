@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireStaff } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { SURVEY_BUCKET } from "@/lib/survey-files";
 import { AREAS, DIRECTIONS, DOC_KINDS, FILE_STATES, PHASES, type Attachment, type DocRequest } from "@/lib/gni-docs";
 
 const str = (v: FormDataEntryValue | null) => String(v ?? "").trim();
@@ -251,6 +252,9 @@ export async function deleteSurvey(form: FormData) {
   const supabase = await hub();
   const rowId = id(form.get("id"));
   if (!rowId) return;
+  // 첨부파일 저장소 정리 (행은 주제 삭제 시 함께 삭제)
+  const { data: files } = await supabase.from("gni_survey_files").select("object_path").eq("survey_id", rowId);
+  if (files?.length) await supabase.storage.from(SURVEY_BUCKET).remove(files.map((f) => f.object_path));
   const { error } = await supabase.from("gni_surveys").delete().eq("id", rowId);
   fail("의견수렴 삭제", error);
   done();

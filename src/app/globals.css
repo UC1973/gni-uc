@@ -607,3 +607,6 @@ details.add[open]{border-style:solid;padding-bottom:16px}
 .sv-form label{display:grid;gap:6px}
 .sv-form textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font:inherit;font-size:14px;background:var(--bg);color:var(--text);min-height:96px}
 .sv-form textarea:focus{outline:2px solid color-mix(in srgb,var(--blue) 40%,transparent);border-color:var(--blue);background:var(--surface)}
+.sv-files{margin-top:10px;padding-top:8px;border-top:1px dashed var(--line)}
+.sv-files .disabled{opacity:.55;pointer-events:none}
+.sv-files .msg{margin-top:6px}

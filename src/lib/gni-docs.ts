@@ -1,5 +1,6 @@
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
+import type { SurveyFile } from "@/lib/survey-files";
 
 /**
  * GNI 공유대학 공문·일정·결정사항·체크리스트 — Supabase gni_* 테이블
@@ -47,15 +48,17 @@ export type SurveyResponse = { survey_id: number; university_id: string; body: s
 /** 의견수렴 주제와 대학별 의견 (조회는 승인된 교직원 전체, 수정은 RLS로 소속 대학만) */
 export async function getSurveys() {
   const supabase = await createClient();
-  const [s, r] = await Promise.all([
+  const [s, r, f] = await Promise.all([
     supabase.from("gni_surveys").select("id,area,title,question,due_on,status,doc_id,decision_id,sort").order("status", { ascending: false }).order("sort").order("id", { ascending: false }),
     supabase.from("gni_survey_responses").select("survey_id,university_id,body,updated_at,author_name"),
+    supabase.from("gni_survey_files").select("id,survey_id,university_id,file_name,size_bytes,author_name,created_at").order("created_at"),
   ]);
-  const error = s.error ?? r.error;
+  const error = s.error ?? r.error ?? f.error;
   if (error) console.error("[gni] 의견수렴 조회 실패", error);
   return {
     surveys: (s.data ?? []) as Survey[],
     responses: (r.data ?? []) as SurveyResponse[],
+    files: (f.data ?? []) as SurveyFile[],
     error: error ? "의견수렴 자료를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요." : null,
   };
 }
